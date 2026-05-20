@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام الكشير الذكي | POS System</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #27ae60;
+            --danger-color: #e74c3c;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            hight: 100vh;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* الهيدر / شريط التنقل */
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .time-date {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* الحاوية الرئيسية */
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        /* قسم المنتجات */
+        .products-section {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .search-bar:focus {
+            border-color: var(--accent-color);
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 15px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .product-card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid #eee;
+        }
+
+        .product-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-color: var(--accent-color);
+        }
+
+        .product-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .product-name {
+            font-weight: bold;
+            font-size: 0.95rem;
+            margin-bottom: 5px;
+        }
+
+        .product-price {
+            color: var(--accent-color);
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        /* قسم الفاتورة / سلة المشتريات */
+        .invoice-section {
+            flex: 1.2;
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #eee;
+        }
+
+        .invoice-header {
+            padding: 15px;
+            background: #f1f2f6;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            font-weight: bold;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .cart-table-container {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .cart-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: right;
+        }
+
+        .cart-table th, .cart-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9rem;
+        }
+
+        .cart-table th {
+            background: #fafafa;
+            position: sticky;
+            top: 0;
+            color: #666;
+        }
+
+        .qty-btn {
+            background: #ddd;
+            border: none;
+            padding: 2px 8px;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+
+        .qty-btn:hover {
+            background: #ccc;
+        }
+
+        .delete-btn {
+            color: var(--danger-color);
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 1rem;
+        }
+
+        /* ملخص الحسابات والفاتورة */
+        .invoice-summary {
+            padding: 20px;
+            background: #f9f9f9;
+            border-top: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.95rem;
+        }
+
+        .summary-row.total {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+            margin-top: 5px;
+        }
+
+        .checkout-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .checkout-btn:hover {
+            background-color: #219653;
+        }
+
+        /* نافذة الفاتورة المنبثقة للطباعة */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; right: 0; bottom: 0; left: 0;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .receipt {
+            background: white;
+            width: 350px;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .receipt-title { font-weight: bold; margin-bottom: 10px; font-size: 1.2rem;}
+        .receipt-divider { border-top: 1px dashed #333; margin: 10px 0; }
+        
+        .receipt-item {
+            display: flex; justify-content: space-between; font-size: 0.9rem; margin: 5px 0;
+        }
+
+        .print-btn {
+            background: var(--primary-color); color: white; border: none;
+            padding: 8px 15px; border-radius: 4px; cursor: pointer; margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- الهيدر -->
+    <header>
+        <h2>🏪 نظام الكشير الذكي</h2>
+        <div class="time-date" id="live-clock">جاري تحميل الوقت...</div>
+    </header>
+
+    <!-- الحاوية الرئيسية -->
+    <div class="main-container">
+        
+        <!-- قسم المنتجات (يسار الشاشة) -->
+        <div class="products-section">
+            <input type="text" class="search-bar" id="search-input" placeholder="🔍 ابحث عن منتج بالاسم..." oninput="filterProducts()">
+            
+            <div class="products-grid" id="products-container">
+                <!-- المنتجات سيتم توليدها بواسطة الجافاسكريبت تلقائياً -->
+            </div>
+        </div>
+
+        <!-- قسم الفاتورة والحساب (يمين الشاشة) -->
+        <div class="invoice-section">
+            <div class="invoice-header">🛒 الطلب الحالي</div>
+            
+            <div class="cart-table-container">
+                <table class="cart-table">
+                    <thead>
+                        <tr>
+                            <th>المنتج</th>
+                            <th>السعر</th>
+                            <th>الكمية</th>
+                            <th>الإجمالي</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="cart-body">
+                        <!-- عناصر السلة ستظهر هنا -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ملخص الحساب -->
+            <div class="invoice-summary">
+                <div class="summary-row">
+                    <span>المجموع الفرعي:</span>
+                    <span id="subtotal">0.00 ج.م</span>
+                </div>
+                <div class="summary-row">
+                    <span>الضريبة (14%):</span>
+                    <span id="tax">0.00 ج.م</span>
+                </div>
+                <div class="summary-row total">
+                    <span>الإجمالي الكلي:</span>
+                    <span id="total">0.00 ج.م</span>
+                </div>
+                <button class="checkout-btn" onclick="openReceipt()">💳 دفع وإنهاء الطلب</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- نافذة الفاتورة والطباعة المنبثقة -->
+    <div class="modal" id="receipt-modal">
+        <div class="receipt">
+            <div class="receipt-title">فاتورة مبيعات</div>
+            <p>محل البقالة السريع</p>
+            <p id="receipt-date" style="font-size: 0.8rem; color: #666;"></p>
+            <div class="receipt-divider"></div>
+            <div id="receipt-items-list"></div>
+            <div class="receipt-divider"></div>
+            <div class="receipt-item" style="font-weight: bold;">
+                <span>الإجمالي العام:</span>
+                <span id="receipt-total-val"></span>
+            </div>
+            <p style="margin-top: 15px; font-size: 0.8rem;">شكراً لزيارتكم وطاب يومكم!</p>
+            <button class="print-btn" onclick="window.print()">🖨️ طباعة الفاتورة</button>
+            <button class="print-btn" style="background:#7f8c8d" onclick="closeReceipt()">إغلاق</button>
+        </div>
+    </div>
+
+    <script>
+        // قاعدة بيانات تجريبية للمنتجات (يمكنك تعديلها أو زيادتها بسهولة)
+        const products = [
+            { id: 1, name: "قهوة إسبريسو", price: 35.00, icon: "☕" },
+            { id: 2, name: "كرواسون زبدة", price: 25.00, icon: "🥐" },
+            { id: 3, name: "زجاجة مياه معدنية", price: 7.00, icon: "💧" },
+            { id: 4, name: "ساندوتش تونة", price: 45.00, icon: "🥪" },
+            { id: 5, name: "عصير برتقال فريش", price: 30.00, icon: "🍊" },
+            { id: 6, name: "شيبسي عائلي", price: 15.00, icon: "🥔" },
+            { id: 7, name: "شوكولاتة بالحليب", price: 20.00, icon: "🍫" },
+            { id: 8, name: "كانيولا ميكس", price: 50.00, icon: "🍰" },
+            { id: 9, name: "علبة علك مِنت", price: 5.00, icon: "🍬" },
+            { id: 10, name: "شاي أخضر كاب", price: 12.00, icon: "🍵" }
+        ];
+
+        let cart = [];
+        const TAX_RATE = 0.14; // ضريبة 14%
+
+        // عرض المنتجات في الشبكة (Grid) عند تحميل الصفحة
+        function displayProducts(productsArray) {
+            const container = document.getElementById('products-container');
+            container.innerHTML = '';
+            
+            productsArray.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.onclick = () => addToCart(product.id);
+                card.innerHTML = `
+                    <div class="product-icon">${product.icon}</div>
+                    <div class="product-name">${product.name}</div>
+                    <div class="product-price">${product.price.toFixed(2)} ج.م</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // إضافة منتج إلى سلة المشتريات
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            const cartItem = cart.find(item => item.id === productId);
+
+            if (cartItem) {
+                cartItem.quantity++;
+            } else {
+                cart.push({ ...product, quantity: 1 });
+            }
+            updateCartUI();
+        }
+
+        // تعديل الكميات داخل السلة (+ أو -)
+        function changeQuantity(productId, amount) {
+            const cartItem = cart.find(item => item.id === productId);
+            if (cartItem) {
+                cartItem.quantity += amount;
+                if (cartItem.quantity <= 0) {
+                    removeFromCart(productId);
+                    return;
+                }
+            }
+            updateCartUI();
+        }
+
+        // حذف منتج تماماً من السلة
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            updateCartUI();
+        }
+
+        // تحديث واجهة السلة والمجاميع الحسابية
+        function updateCartUI() {
+            const cartBody = document.getElementById('cart-body');
+            cartBody.innerHTML = '';
+
+            let subtotal = 0;
+
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.name}</td>
+                    <td>${item.price.toFixed(2)}</td>
+                    <td>
+                        <button class="qty-btn" onclick="changeQuantity(${item.id}, -1)">-</button>
+                        <span style="margin: 0 5px;">${item.quantity}</span>
+                        <button class="qty-btn" onclick="changeQuantity(${item.id}, 1)">+</button>
+                    </td>
+                    <td>${itemTotal.toFixed(2)}</td>
+                    <td><button class="delete-btn" onclick="removeFromCart(${item.id})">🗑️</button></td>
+                `;
+                cartBody.appendChild(row);
+            });
+
+            // حسابات الضرائب والإجمالي الكلي
+            const tax = subtotal * TAX_RATE;
+            const total = subtotal + tax;
+
+            document.getElementById('subtotal').innerText = `${subtotal.toFixed(2)} ج.م`;
+            document.getElementById('tax').innerText = `${tax.toFixed(2)} ج.م`;
+            document.getElementById('total').innerText = `${total.toFixed(2)} ج.م`;
+        }
+
+        // فلترة المنتجات عند البحث
+        function filterProducts() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const filtered = products.filter(p => p.name.toLowerCase().includes(query));
+            displayProducts(filtered);
+        }
+
+        // تشغيل الساعة التلقائية في الهيدر
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('live-clock').innerText = now.toLocaleString('ar-EG');
+        }
+
+        // التعامل مع الفاتورة النهائية والدفع
+        function openReceipt() {
+            if(cart.length === 0) {
+                alert("سلة المشتريات فارغة! فضلاً أضف منتجات أولاً.");
+                return;
+            }
+            
+            const listContainer = document.getElementById('receipt-items-list');
+            listContainer.innerHTML = '';
+            
+            cart.forEach(item => {
+                const itemRow = document.createElement('div');
+                itemRow.className = 'receipt-item';
+                itemRow.innerHTML = `
+                    <span>${item.name} (x${item.quantity})</span>
+                    <span>${(item.price * item.quantity).toFixed(2)} ج.م</span>
+                `;
+                listContainer.appendChild(itemRow);
+            });
+
+            document.getElementById('receipt-total-val').innerText = document.getElementById('total').innerText;
+            document.getElementById('receipt-date').innerText = new Date().toLocaleString('ar-EG');
+            document.getElementById('receipt-modal').style.display = 'flex';
+        }
+
+        function closeReceipt() {
+            document.getElementById('receipt-modal').style.display = 'none';
+            // إفراغ السلة بعد نجاح العملية والدفع
+            cart = [];
+            updateCartUI();
+        }
+
+        // إطلاق الدوال عند تحميل الصفحة لأول مرة
+        displayProducts(products);
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>
