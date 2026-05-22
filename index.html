@@ -1,89 +1,311 @@
-<!-- ======================= قسم مخزن العميل الاحترافي ======================= -->
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>TAL3A ERP PRO MAX</title>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap"
+rel="stylesheet">
 
 <style>
 
-.stockCard{
+:root{
 
-background:#0f172a;
-padding:25px;
-border-radius:25px;
-margin-top:25px;
-box-shadow:0 10px 40px rgba(0,0,0,.4);
-
-}
-
-.stockHeader{
-
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:20px;
-flex-wrap:wrap;
-gap:10px;
+--bg:#020617;
+--card:#111827;
+--blue:#2563eb;
+--green:#059669;
+--red:#dc2626;
+--orange:#ea580c;
+--gray:#94a3b8;
 
 }
 
-.stockHeader h2{
+*{
 
-font-size:28px;
-color:#fff;
-
-}
-
-.stockBtns{
-
-display:flex;
-gap:10px;
-flex-wrap:wrap;
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Cairo',sans-serif;
 
 }
 
-.stockTable{
+body{
+
+background:
+linear-gradient(135deg,#020617,#0f172a);
+
+color:white;
+overflow-x:hidden;
+
+}
+
+.screen{
+
+display:none;
+animation:fade .4s ease;
+
+}
+
+.screen.active{
+
+display:block;
+
+}
+
+@keyframes fade{
+
+from{
+
+opacity:0;
+transform:translateY(15px);
+
+}
+
+to{
+
+opacity:1;
+transform:translateY(0);
+
+}
+
+}
+
+.main{
+
+max-width:1700px;
+margin:auto;
+padding:20px;
+
+}
+
+.loginBox{
+
+max-width:450px;
+margin:70px auto;
+background:#111827;
+padding:35px;
+border-radius:30px;
+box-shadow:0 20px 70px rgba(0,0,0,.5);
+
+}
+
+.loginBox h1{
+
+text-align:center;
+margin-bottom:25px;
+font-size:35px;
+
+}
+
+.inputBox{
+
+margin-bottom:15px;
+
+}
+
+.inputBox label{
+
+display:block;
+margin-bottom:8px;
+color:var(--gray);
+
+}
+
+.inputBox input,
+.inputBox select,
+textarea{
 
 width:100%;
-border-collapse:collapse;
-overflow:hidden;
-border-radius:20px;
-
-}
-
-.stockTable thead{
-
-background:linear-gradient(90deg,#2563eb,#1d4ed8);
-
-}
-
-.stockTable th{
-
-padding:18px;
+padding:15px;
+border:none;
+border-radius:14px;
+background:#1e293b;
 color:white;
 font-size:15px;
 
 }
 
-.stockTable td{
+button{
+
+border:none;
+padding:14px 20px;
+border-radius:14px;
+cursor:pointer;
+font-weight:bold;
+transition:.2s;
+
+}
+
+button:hover{
+
+transform:translateY(-2px);
+
+}
+
+.btnPrimary{
+
+background:var(--blue);
+color:white;
+
+}
+
+.btnSuccess{
+
+background:var(--green);
+color:white;
+
+}
+
+.btnDanger{
+
+background:var(--red);
+color:white;
+
+}
+
+.btnWarning{
+
+background:var(--orange);
+color:white;
+
+}
+
+.navbar{
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:25px;
+gap:10px;
+flex-wrap:wrap;
+
+}
+
+.cards{
+
+display:grid;
+grid-template-columns:
+repeat(auto-fit,minmax(250px,1fr));
+
+gap:20px;
+margin-bottom:25px;
+
+}
+
+.card{
+
+background:#111827;
+padding:25px;
+border-radius:24px;
+box-shadow:0 10px 30px rgba(0,0,0,.3);
+
+}
+
+.stat h1{
+
+font-size:42px;
+margin-top:10px;
+
+}
+
+.tableWrap{
+
+overflow:auto;
+border-radius:20px;
+
+}
+
+table{
+
+width:100%;
+border-collapse:collapse;
+
+}
+
+th{
+
+background:#1e293b;
+padding:16px;
+
+}
+
+td{
 
 padding:16px;
 background:#111827;
-border-bottom:1px solid rgba(255,255,255,.06);
+border-bottom:
+1px solid rgba(255,255,255,.05);
+
 text-align:center;
 
 }
 
-.stockTable tr:hover td{
+.search{
 
-background:#172033;
+width:100%;
+padding:15px;
+border:none;
+border-radius:14px;
+background:#1e293b;
+color:white;
+margin-bottom:15px;
 
 }
 
-.stockInput{
+.notice{
 
-width:100%;
-padding:12px;
-border:none;
-border-radius:12px;
 background:#1e293b;
-color:white;
+padding:15px;
+border-radius:14px;
+margin-bottom:10px;
+
+}
+
+.toast{
+
+position:fixed;
+bottom:20px;
+left:20px;
+background:#111827;
+padding:15px 25px;
+border-radius:14px;
+display:none;
+z-index:99999;
+
+}
+
+.badgeBlue{
+
+background:#2563eb;
+padding:8px 14px;
+border-radius:10px;
+
+}
+
+.badgeGreen{
+
+background:#059669;
+padding:8px 14px;
+border-radius:10px;
+
+}
+
+.badgeRed{
+
+background:#dc2626;
+padding:8px 14px;
+border-radius:10px;
 
 }
 
@@ -96,57 +318,6 @@ color:black;
 
 }
 
-.printTitle{
-
-text-align:center;
-margin-bottom:20px;
-
-}
-
-.printTable{
-
-width:100%;
-border-collapse:collapse;
-margin-top:20px;
-
-}
-
-.printTable th,
-.printTable td{
-
-border:1px solid black;
-padding:12px;
-text-align:center;
-
-}
-
-.badgeQty{
-
-background:#2563eb;
-padding:8px 14px;
-border-radius:10px;
-font-weight:bold;
-
-}
-
-.badgeMoney{
-
-background:#059669;
-padding:8px 14px;
-border-radius:10px;
-font-weight:bold;
-
-}
-
-.badgeDanger{
-
-background:#dc2626;
-padding:8px 14px;
-border-radius:10px;
-font-weight:bold;
-
-}
-
 @media print{
 
 body *{
@@ -155,28 +326,27 @@ display:none !important;
 
 }
 
-#printStockArea,
-#printStockArea *{
+#printArea,
+#printArea *{
 
 display:block !important;
 
 }
 
-.printTable,
-.printTable *{
+table,
+table *{
 
 display:table !important;
 
 }
 
-.printTable tr{
+tr{
 
 display:table-row !important;
 
 }
 
-.printTable td,
-.printTable th{
+td,th{
 
 display:table-cell !important;
 
@@ -186,46 +356,440 @@ display:table-cell !important;
 
 </style>
 
-<!-- ======================= داخل لوحة العميل ======================= -->
+</head>
 
-<div class="stockCard">
+<body>
 
-<div class="stockHeader">
+<div id="toast" class="toast"></div>
 
-<h2>
-📦 مخزن العميل الخاص
-</h2>
+<!-- LOGIN -->
 
-<div class="stockBtns">
+<div id="screen-login"
+class="screen active">
+
+<div class="loginBox">
+
+<h1>
+🔥 TAL3A ERP
+</h1>
+
+<div class="inputBox">
+
+<label>
+اسم المستخدم
+</label>
+
+<input type="text"
+id="login-username">
+
+</div>
+
+<div class="inputBox">
+
+<label>
+كلمة السر
+</label>
+
+<input type="password"
+id="login-password">
+
+</div>
 
 <button class="btnPrimary"
-onclick="printClientStock()">
+style="width:100%;"
+onclick="handleLogin()">
 
-🖨️ طباعة الجرد
+تسجيل الدخول
 
 </button>
+
+</div>
+
+</div>
+
+<!-- OWNER -->
+
+<div id="screen-owner"
+class="screen">
+
+<div class="main">
+
+<div class="navbar">
+
+<h2>
+👑 لوحة المالك محمد
+</h2>
+
+<div style="display:flex;gap:10px;">
+
+<button class="btnDanger"
+onclick="toggleSystem()">
+
+تشغيل / إيقاف
+
+</button>
+
+<button class="btnWarning"
+onclick="logoutSession()">
+
+خروج
+
+</button>
+
+</div>
+
+</div>
+
+<!-- STATS -->
+
+<div class="cards">
+
+<div class="card stat">
+
+إجمالي القطع
+
+<h1 id="totalQty">0</h1>
+
+</div>
+
+<div class="card stat">
+
+إجمالي المدفوع
+
+<h1 id="totalPaid">0</h1>
+
+</div>
+
+<div class="card stat">
+
+إجمالي المصروف
+
+<h1 id="totalExpense">0</h1>
+
+</div>
+
+</div>
+
+<!-- CREATE ACCOUNT -->
+
+<div class="card">
+
+<h2>
+➕ إضافة حساب
+</h2>
+
+<br>
+
+<div class="cards">
+
+<input id="acc-username"
+placeholder="اسم الحساب">
+
+<input id="acc-password"
+placeholder="كلمة السر">
+
+<select id="acc-role">
+
+<option value="client">
+عميل
+</option>
+
+<option value="supervisor">
+مشرف
+</option>
+
+</select>
+
+<input type="number"
+id="acc-qty"
+placeholder="القطع">
+
+<input type="number"
+id="acc-paid"
+placeholder="المدفوع">
+
+<input type="number"
+id="acc-expense"
+placeholder="المصروف">
+
+</div>
+
+<br>
 
 <button class="btnSuccess"
-onclick="loadClientProducts()">
+onclick="saveAccount()">
 
-🔄 تحديث
+حفظ الحساب
 
 </button>
 
 </div>
 
+<!-- STOCK -->
+
+<div class="card">
+
+<h2>
+📦 إدارة مخازن العملاء
+</h2>
+
+<br>
+
+<div class="cards">
+
+<input id="stock-user"
+placeholder="اسم العميل">
+
+<input id="stock-product"
+placeholder="اسم المنتج">
+
+<input type="number"
+id="stock-qty"
+placeholder="الكمية">
+
+<input type="number"
+id="stock-price"
+placeholder="السعر">
+
 </div>
+
+<br>
+
+<button class="btnPrimary"
+onclick="addStock()">
+
+إضافة للمخزن
+
+</button>
+
+</div>
+
+<!-- PRIVATE NOTICE -->
+
+<div class="card">
+
+<h2>
+🔔 إشعار خاص
+</h2>
+
+<br>
+
+<div class="cards">
+
+<input id="private-user"
+placeholder="اسم العميل">
+
+<input id="private-msg"
+placeholder="الإشعار">
+
+</div>
+
+<br>
+
+<button class="btnWarning"
+onclick="sendPrivateNotice()">
+
+إرسال
+
+</button>
+
+</div>
+
+<!-- ACCOUNTS -->
+
+<div class="card">
+
+<h2>
+📋 الحسابات
+</h2>
+
+<br>
+
+<input class="search"
+placeholder="بحث..."
+onkeyup="filterTable('accountsTable',this.value)">
 
 <div class="tableWrap">
 
-<table class="stockTable"
-id="clientProductsTable">
+<table id="accountsTable">
 
 <thead>
 
 <tr>
 
-<th>اسم المنتج</th>
+<th>الاسم</th>
+<th>النوع</th>
+<th>القطع</th>
+<th>المدفوع</th>
+<th>المصروف</th>
+<th>حذف</th>
+
+</tr>
+
+</thead>
+
+<tbody></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<!-- MESSAGES -->
+
+<div class="card">
+
+<h2>
+📨 رسائل العملاء
+</h2>
+
+<br>
+
+<div id="ownerMessages"></div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- SUPERVISOR -->
+
+<div id="screen-supervisor"
+class="screen">
+
+<div class="main">
+
+<div class="navbar">
+
+<h2>
+🛡️ لوحة المشرف
+</h2>
+
+<button class="btnWarning"
+onclick="logoutSession()">
+
+خروج
+
+</button>
+
+</div>
+
+<div class="card">
+
+<div class="tableWrap">
+
+<table id="supervisorTable">
+
+<thead>
+
+<tr>
+
+<th>الاسم</th>
+<th>النوع</th>
+<th>القطع</th>
+<th>المدفوع</th>
+<th>المصروف</th>
+
+</tr>
+
+</thead>
+
+<tbody></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- CLIENT -->
+
+<div id="screen-client"
+class="screen">
+
+<div class="main">
+
+<div class="navbar">
+
+<h2 id="clientName">
+🛒 لوحة العميل
+</h2>
+
+<button class="btnWarning"
+onclick="logoutSession()">
+
+خروج
+
+</button>
+
+</div>
+
+<div id="clientNotice"></div>
+
+<!-- CLIENT STATS -->
+
+<div class="cards">
+
+<div class="card stat">
+
+عدد القطع
+
+<h1 id="clientQty">0</h1>
+
+</div>
+
+<div class="card stat">
+
+المدفوع
+
+<h1 id="clientPaid">0</h1>
+
+</div>
+
+<div class="card stat">
+
+المصروف
+
+<h1 id="clientExpense">0</h1>
+
+</div>
+
+</div>
+
+<!-- CLIENT STOCK -->
+
+<div class="card">
+
+<h2>
+📦 مخزني
+</h2>
+
+<br>
+
+<button class="btnPrimary"
+onclick="printStock()">
+
+🖨️ طباعة الجرد
+
+</button>
+
+<br><br>
+
+<div class="tableWrap">
+
+<table id="clientStockTable">
+
+<thead>
+
+<tr>
+
+<th>المنتج</th>
 <th>الكمية</th>
 <th>السعر</th>
 <th>الإجمالي</th>
@@ -242,73 +806,25 @@ id="clientProductsTable">
 
 </div>
 
-<!-- ======================= داخل لوحة المالك ======================= -->
+<!-- CHAT -->
 
-<div class="stockCard">
-
-<div class="stockHeader">
+<div class="card">
 
 <h2>
-🏪 إدارة مخازن العملاء
+💬 التواصل مع المالك
 </h2>
-
-</div>
-
-<div class="cards">
-
-<div class="inputBox">
-
-<input class="stockInput"
-type="text"
-id="stock-user"
-placeholder="اسم العميل">
-
-</div>
-
-<div class="inputBox">
-
-<input class="stockInput"
-type="text"
-id="stock-product"
-placeholder="اسم المنتج">
-
-</div>
-
-<div class="inputBox">
-
-<input class="stockInput"
-type="number"
-id="stock-qty"
-placeholder="الكمية">
-
-</div>
-
-<div class="inputBox">
-
-<input class="stockInput"
-type="number"
-id="stock-price"
-placeholder="السعر">
-
-</div>
-
-</div>
 
 <br>
 
-<div class="stockBtns">
+<textarea id="clientMessage"
+placeholder="اكتب الرسالة"></textarea>
+
+<br><br>
 
 <button class="btnSuccess"
-onclick="addStockItem()">
+onclick="sendMessage()">
 
-➕ إضافة للمخزن
-
-</button>
-
-<button class="btnWarning"
-onclick="updateStockItem()">
-
-✏️ تعديل
+إرسال
 
 </button>
 
@@ -316,24 +832,24 @@ onclick="updateStockItem()">
 
 </div>
 
-<!-- ======================= قالب الطباعة ======================= -->
+</div>
 
-<div id="printStockArea"
+<!-- PRINT -->
+
+<div id="printArea"
 class="printArea">
-
-<div class="printTitle">
 
 <h1>
 📦 تقرير جرد المخزن
 </h1>
 
-<h3 id="printClientName"></h3>
+<br>
 
-<p id="printDate"></p>
+<h3 id="printClient"></h3>
 
-</div>
+<br>
 
-<table class="printTable">
+<table>
 
 <thead>
 
@@ -348,11 +864,11 @@ class="printArea">
 
 </thead>
 
-<tbody id="printStockBody"></tbody>
+<tbody id="printBody"></tbody>
 
 </table>
 
-<br><br>
+<br>
 
 <h2 id="printTotal"></h2>
 
@@ -360,114 +876,368 @@ class="printArea">
 
 <script>
 
-/* ======================= إضافة منتج ======================= */
+const firebaseConfig={
 
-function addStockItem(){
+databaseURL:
+"https://mama-c6e6b-default-rtdb.firebaseio.com/"
 
-const user=
-document.getElementById("stock-user").value.trim();
+};
 
-const product=
-document.getElementById("stock-product").value.trim();
+firebase.initializeApp(firebaseConfig);
 
-const qty=
-parseInt(document.getElementById("stock-qty").value)||0;
+const db=firebase.database();
 
-const price=
-parseInt(document.getElementById("stock-price").value)||0;
+let authUser=null;
+let authRole=null;
 
-if(!user || !product){
+/* TOAST */
 
-showToast("اكمل البيانات");
+function showToast(msg){
+
+const t=
+document.getElementById("toast");
+
+t.innerText=msg;
+
+t.style.display="block";
+
+setTimeout(()=>{
+
+t.style.display="none";
+
+},4000);
+
+}
+
+/* NAVIGATION */
+
+function navigate(id){
+
+document.querySelectorAll(".screen")
+.forEach(s=>{
+
+s.classList.remove("active");
+
+});
+
+document.getElementById(id)
+.classList.add("active");
+
+}
+
+/* LOGIN */
+
+function handleLogin(){
+
+const u=
+document.getElementById("login-username")
+.value.trim();
+
+const p=
+document.getElementById("login-password")
+.value.trim();
+
+if(u==="محمد" && p==="111221"){
+
+authUser=u;
+authRole="owner";
+
+navigate("screen-owner");
+
+loadAccounts();
+loadMessages();
+
+showToast("أهلاً محمد");
 
 return;
 
 }
 
-db.ref("products/"+user).push({
+db.ref("systemAccounts/"+u)
+.once("value",snap=>{
 
-product:product,
-qty:qty,
-price:price,
-total:qty*price,
-createdAt:Date.now()
+const d=snap.val();
 
-}).then(()=>{
+if(d && d.password===p){
 
-showToast("تم إضافة المنتج للمخزن");
+authUser=u;
+authRole=d.role;
+
+if(d.role==="client"){
+
+navigate("screen-client");
+
+syncClient(d);
+
+loadStock();
+
+}
+
+if(d.role==="supervisor"){
+
+navigate("screen-supervisor");
+
+loadAccounts();
+
+}
+
+showToast("تم الدخول");
+
+}else{
+
+showToast("بيانات خاطئة");
+
+}
 
 });
 
 }
 
-/* ======================= تعديل منتج ======================= */
+/* LOGOUT */
 
-function updateStockItem(){
+function logoutSession(){
 
-const user=
-document.getElementById("stock-user").value.trim();
+authUser=null;
+authRole=null;
 
-db.ref("products/"+user).once("value",snap=>{
-
-if(!snap.exists()){
-
-showToast("لا يوجد مخزن");
-
-return;
+navigate("screen-login");
 
 }
 
-showToast("افتح Firebase وعدل المنتج مباشرة");
+/* SAVE ACCOUNT */
+
+function saveAccount(){
+
+const u=
+document.getElementById("acc-username")
+.value;
+
+const p=
+document.getElementById("acc-password")
+.value;
+
+const r=
+document.getElementById("acc-role")
+.value;
+
+const q=
+document.getElementById("acc-qty")
+.value;
+
+const pd=
+document.getElementById("acc-paid")
+.value;
+
+const ex=
+document.getElementById("acc-expense")
+.value;
+
+db.ref("systemAccounts/"+u)
+.set({
+
+password:p,
+role:r,
+qty:q,
+paid:pd,
+expense:ex
 
 });
 
+showToast("تم حفظ الحساب");
+
 }
 
-/* ======================= تحميل مخزن العميل ======================= */
+/* LOAD ACCOUNTS */
 
-function loadClientProducts(){
+function loadAccounts(){
 
-db.ref("products/"+authUser).on("value",snap=>{
+db.ref("systemAccounts")
+.on("value",snap=>{
 
 const body=
-document.querySelector("#clientProductsTable tbody");
+document.querySelector("#accountsTable tbody");
+
+const sup=
+document.querySelector("#supervisorTable tbody");
 
 body.innerHTML="";
+sup.innerHTML="";
 
-let totalMoney=0;
-let totalQty=0;
+let tq=0;
+let tp=0;
+let te=0;
 
 snap.forEach(data=>{
 
 const d=data.val();
 
-totalMoney+=Number(d.total||0);
-totalQty+=Number(d.qty||0);
+tq+=Number(d.qty||0);
+tp+=Number(d.paid||0);
+te+=Number(d.expense||0);
 
 body.innerHTML+=`
 
 <tr>
 
-<td>
-${d.product}
-</td>
+<td>${data.key}</td>
+<td>${d.role}</td>
+<td>${d.qty}</td>
+<td>${d.paid}</td>
+<td>${d.expense}</td>
 
 <td>
-<span class="badgeQty">
+
+<button class="btnDanger"
+onclick="deleteAcc('${data.key}')">
+
+حذف
+
+</button>
+
+</td>
+
+</tr>
+
+`;
+
+sup.innerHTML+=`
+
+<tr>
+
+<td>${data.key}</td>
+<td>${d.role}</td>
+<td>${d.qty}</td>
+<td>${d.paid}</td>
+<td>${d.expense}</td>
+
+</tr>
+
+`;
+
+});
+
+document.getElementById("totalQty")
+.innerText=tq;
+
+document.getElementById("totalPaid")
+.innerText=tp;
+
+document.getElementById("totalExpense")
+.innerText=te;
+
+});
+
+}
+
+/* DELETE */
+
+function deleteAcc(user){
+
+db.ref("systemAccounts/"+user)
+.remove();
+
+showToast("تم الحذف");
+
+}
+
+/* CLIENT DATA */
+
+function syncClient(d){
+
+document.getElementById("clientName")
+.innerText="🛒 "+authUser;
+
+document.getElementById("clientQty")
+.innerText=d.qty||0;
+
+document.getElementById("clientPaid")
+.innerText=d.paid||0;
+
+document.getElementById("clientExpense")
+.innerText=d.expense||0;
+
+}
+
+/* STOCK */
+
+function addStock(){
+
+const user=
+document.getElementById("stock-user")
+.value;
+
+const product=
+document.getElementById("stock-product")
+.value;
+
+const qty=
+document.getElementById("stock-qty")
+.value;
+
+const price=
+document.getElementById("stock-price")
+.value;
+
+db.ref("products/"+user)
+.push({
+
+product:product,
+qty:qty,
+price:price,
+total:qty*price
+
+});
+
+showToast("تم إضافة المنتج");
+
+}
+
+function loadStock(){
+
+db.ref("products/"+authUser)
+.on("value",snap=>{
+
+const body=
+document.querySelector("#clientStockTable tbody");
+
+body.innerHTML="";
+
+let total=0;
+
+snap.forEach(data=>{
+
+const d=data.val();
+
+total+=Number(d.total||0);
+
+body.innerHTML+=`
+
+<tr>
+
+<td>${d.product}</td>
+
+<td>
+
+<span class="badgeBlue">
 ${d.qty}
 </span>
+
 </td>
 
 <td>
-<span class="badgeMoney">
-${d.price} ج
+
+<span class="badgeGreen">
+${d.price}
 </span>
+
 </td>
 
 <td>
-<span class="badgeDanger">
-${d.total} ج
+
+<span class="badgeRed">
+${d.total}
 </span>
+
 </td>
 
 </tr>
@@ -482,25 +1252,9 @@ body.innerHTML+=`
 
 <td colspan="4">
 
-<div style="
-display:flex;
-justify-content:center;
-gap:20px;
-flex-wrap:wrap;
-padding:15px;
-">
-
-<div class="badgeQty">
-إجمالي القطع :
-${totalQty}
-</div>
-
-<div class="badgeMoney">
-إجمالي القيمة :
-${totalMoney} ج
-</div>
-
-</div>
+<h2>
+الإجمالي : ${total} ج
+</h2>
 
 </td>
 
@@ -512,14 +1266,15 @@ ${totalMoney} ج
 
 }
 
-/* ======================= طباعة الجرد ======================= */
+/* PRINT */
 
-function printClientStock(){
+function printStock(){
 
-db.ref("products/"+authUser).once("value",snap=>{
+db.ref("products/"+authUser)
+.once("value",snap=>{
 
 const body=
-document.getElementById("printStockBody");
+document.getElementById("printBody");
 
 body.innerHTML="";
 
@@ -537,8 +1292,8 @@ body.innerHTML+=`
 
 <td>${d.product}</td>
 <td>${d.qty}</td>
-<td>${d.price} ج</td>
-<td>${d.total} ج</td>
+<td>${d.price}</td>
+<td>${d.total}</td>
 
 </tr>
 
@@ -546,14 +1301,11 @@ body.innerHTML+=`
 
 });
 
-document.getElementById("printClientName").innerText=
-"العميل : "+authUser;
+document.getElementById("printClient")
+.innerText="العميل : "+authUser;
 
-document.getElementById("printDate").innerText=
-new Date().toLocaleString();
-
-document.getElementById("printTotal").innerText=
-"إجمالي المخزن : "+total+" ج";
+document.getElementById("printTotal")
+.innerText="الإجمالي : "+total+" ج";
 
 window.print();
 
@@ -561,47 +1313,142 @@ window.print();
 
 }
 
-/* ======================= حبشتكنات ======================= */
+/* NOTICE */
+
+function sendPrivateNotice(){
+
+const user=
+document.getElementById("private-user")
+.value;
+
+const msg=
+document.getElementById("private-msg")
+.value;
+
+db.ref("privateNotice/"+user)
+.set({
+
+msg:msg
+
+});
+
+showToast("تم الإرسال");
+
+}
+
+db.ref("privateNotice")
+.on("value",snap=>{
+
+const data=snap.val()||{};
+
+if(authRole==="client"
+&& data[authUser]){
+
+document.getElementById("clientNotice")
+.innerHTML=`
+
+<div class="notice">
+
+🔔 ${data[authUser].msg}
+
+</div>
+
+`;
+
+}
+
+});
+
+/* MESSAGE */
+
+function sendMessage(){
+
+const txt=
+document.getElementById("clientMessage")
+.value;
+
+db.ref("messages")
+.push({
+
+user:authUser,
+msg:txt,
+time:new Date().toLocaleString()
+
+});
+
+showToast("تم الإرسال");
+
+}
+
+function loadMessages(){
+
+db.ref("messages")
+.on("value",snap=>{
+
+const box=
+document.getElementById("ownerMessages");
+
+box.innerHTML="";
+
+snap.forEach(data=>{
+
+const d=data.val();
+
+box.innerHTML+=`
+
+<div class="notice">
+
+<b>
+${d.user}
+</b>
+
+<br><br>
+
+${d.msg}
+
+<br><br>
+
+${d.time}
+
+</div>
+
+`;
+
+});
+
+});
+
+}
+
+/* SEARCH */
+
+function filterTable(id,q){
+
+const rows=
+document.querySelectorAll(
+`#${id} tbody tr`
+);
+
+rows.forEach(r=>{
+
+r.style.display=
+r.innerText.includes(q)
+? ""
+: "none";
+
+});
+
+}
+
+/* حبشتكنات */
 
 setInterval(()=>{
 
 document.title=
-"🔥 TAL3A ERP | "+new Date().toLocaleTimeString();
+"🔥 TAL3A ERP | "+
+new Date().toLocaleTimeString();
 
 },1000);
-
-/* تأثير عند الدخول */
-
-document.body.style.opacity="0";
-
-setTimeout(()=>{
-
-document.body.style.transition="1s";
-document.body.style.opacity="1";
-
-},300);
-
-/* إشعار صوتي */
-
-function playNotify(){
-
-new Audio(
-"https://cdn.pixabay.com/audio/2022/03/10/audio_c8c8a73467.mp3"
-).play();
-
-}
-
-/* إشعار احترافي */
-
-function proToast(msg){
-
-showToast("🔥 "+msg);
-
-playNotify();
-
-}
-
-/* حماية بسيطة */
 
 document.addEventListener("keydown",e=>{
 
@@ -609,22 +1456,13 @@ if(e.key==="F12"){
 
 e.preventDefault();
 
-proToast("ممنوع فتح أدوات المطور");
-
-}
-
-});
-
-/* تحديث لحظي */
-
-db.ref("products").on("value",()=>{
-
-if(authRole==="client"){
-
-loadClientProducts();
+showToast("ممنوع فتح أدوات المطور");
 
 }
 
 });
 
 </script>
+
+</body>
+</html>
