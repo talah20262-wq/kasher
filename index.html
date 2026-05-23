@@ -1,1168 +1,1135 @@
-<!-- ====================== OWNER + CLIENT FINAL FUNCTIONS ====================== -->
-
-<script>
-
-/* ======================
-   GLOBAL VARIABLES
-====================== */
-
-let currentClientData = null
-let currentUser = null
-let currentRole = null
-
-/* ======================
-   LOGIN SYSTEM
-====================== */
-
-function login(){
-
-let u = document.getElementById('loginUser').value.trim()
-let p = document.getElementById('loginPass').value.trim()
-
-if(!u || !p){
-
-alert('اكتب البيانات كاملة')
-return
-
-}
-
-/* OWNER LOGIN */
-
-if(u === 'محمد' && p === '111221'){
-
-currentUser='محمد'
-currentRole='owner'
-
-document.getElementById('loginScreen')
-.classList.remove('active')
-
-document.getElementById('ownerScreen')
-.classList.add('active')
-
-loadAll()
-
-saveAccessLog()
-
-return
-
-}
-
-/* CLIENT LOGIN */
-
-firebase.database()
-.ref('accounts/'+u)
-.once('value')
-.then(s=>{
-
-let data=s.val()
-
-if(!data){
-
-alert('الحساب غير موجود')
-return
-
-}
-
-if(data.password !== p){
-
-alert('كلمة السر غير صحيحة')
-return
-
-}
-
-if(data.freeze === true){
-
-alert('الحساب مجمد من الإدارة')
-return
-
-}
-
-currentUser=u
-currentRole=data.role
-
-openClient()
-
-saveAccessLog()
-
-})
-
-}
-
-/* ======================
-   CLIENT OPEN
-====================== */
-
-function openClient(){
-
-document.getElementById('loginScreen')
-.classList.remove('active')
-
-document.getElementById('clientScreen')
-.classList.add('active')
-
-loadClientData()
-loadClientStore()
-loadClientChat()
-loadClientNotifications()
-
-}
-
-/* ======================
-   ACCESS LOGS
-====================== */
-
-function saveAccessLog(){
-
-firebase.database()
-.ref('logs')
-.push({
-
-user:currentUser,
-role:currentRole,
-time:new Date().toLocaleString('ar-EG'),
-device:navigator.userAgent
-
-})
-
-}
-
-/* ======================
-   LOGOUT
-====================== */
-
-function logout(){
-
-location.reload()
-
-}
-
-/* ======================
-   OWNER PAGE NAVIGATION
-====================== */
-
-function showPage(id){
-
-document.querySelectorAll('.page')
-.forEach(p=>p.style.display='none')
-
-document.getElementById(id)
-.style.display='block'
-
-}
-
-/* ======================
-   CLIENT PAGE NAVIGATION
-====================== */
-
-function showClientPage(id){
-
-document.querySelectorAll('.clientPage')
-.forEach(p=>p.style.display='none')
-
-document.getElementById(id)
-.style.display='block'
-
-}
-
-/* ======================
-   SAVE ACCOUNT
-====================== */
-
-function saveAccount(){
-
-let user = document.getElementById('accUser').value.trim()
-
-if(!user){
-
-alert('اكتب اسم العميل')
-return
-
-}
-
-let data={
-
-password:document.getElementById('accPass').value,
-
-role:document.getElementById('accRole').value,
-
-qty:Number(document.getElementById('accQty').value||0),
-
-paid:Number(document.getElementById('accPaid').value||0),
-
-expense:Number(document.getElementById('accExpense').value||0),
-
-freeze:false,
-
-createdAt:new Date().toLocaleString('ar-EG')
-
-}
-
-firebase.database()
-.ref('accounts/'+user)
-.set(data)
-
-alert('تم حفظ الحساب')
-
-}
-
-/* ======================
-   LOAD ACCOUNTS
-====================== */
-
-function loadAccounts(){
-
-firebase.database()
-.ref('accounts')
-.on('value',snap=>{
-
-let data=snap.val()||{}
-
-let html=''
-
-let totalProfit=0
-let totalDebts=0
-let clients=0
-
-for(let key in data){
-
-let d=data[key]
-
-clients++
-
-let paid=Number(d.paid||0)
-let expense=Number(d.expense||0)
-
-totalProfit += paid-expense
-totalDebts += expense
-
-html += `
-
-<tr>
-
-<td>${key}</td>
-
-<td>${d.role}</td>
-
-<td>${d.qty||0}</td>
-
-<td>${paid.toLocaleString()} ج.م</td>
-
-<td>${expense.toLocaleString()} ج.م</td>
-
-<td>
-
-${d.freeze
-?'🔴 مجمد'
-:'🟢 نشط'}
-
-</td>
-
-<td>
-
-<button class="printBtn"
-onclick="resetBalances('${key}')">
-
-تصفير
-
-</button>
-
-<button class="freezeBtn"
-onclick="toggleFreeze('${key}',${d.freeze})">
-
-${d.freeze?'فك':'تجميد'}
-
-</button>
-
-<button class="killBtn"
-onclick="deleteAcc('${key}')">
-
-حذف
-
-</button>
-
-</td>
-
-</tr>
-
-`
-
-}
-
-document.getElementById('accountsTable')
-.innerHTML=html
-
-document.getElementById('profitCard')
-.innerText=totalProfit.toLocaleString()+' ج.م'
-
-document.getElementById('clientsCard')
-.innerText=clients
-
-document.getElementById('debtsCard')
-.innerText=totalDebts.toLocaleString()+' ج.م'
-
-})
-
-}
-
-/* ======================
-   DELETE ACCOUNT
-====================== */
-
-function deleteAcc(user){
-
-if(confirm('حذف الحساب نهائياً؟')){
-
-firebase.database()
-.ref('accounts/'+user)
-.remove()
-
-}
-
-}
-
-/* ======================
-   FREEZE / UNFREEZE
-====================== */
-
-function toggleFreeze(user,state){
-
-firebase.database()
-.ref('accounts/'+user+'/freeze')
-.set(!state)
-
-}
-
-/* ======================
-   RESET BALANCES
-====================== */
-
-function resetBalances(user){
-
-firebase.database()
-.ref('accounts/'+user)
-.once('value')
-.then(s=>{
-
-let d=s.val()
-
-firebase.database()
-.ref('archive/'+user+'/'+Date.now())
-.set(d)
-
-firebase.database()
-.ref('accounts/'+user+'/paid')
-.set(0)
-
-firebase.database()
-.ref('accounts/'+user+'/expense')
-.set(0)
-
-alert('تم تصفير الحساب')
-
-})
-
-}
-
-/* ======================
-   ADD STOCK
-====================== */
-
-function addStock(){
-
-let client =
-document.getElementById('stockClient').value
-
-let product =
-document.getElementById('productName').value
-
-let color =
-document.getElementById('productColor').value
-
-let size =
-document.getElementById('productSize').value
-
-let qty =
-Number(document.getElementById('productQty').value)
-
-let price =
-Number(document.getElementById('productPrice').value)
-
-let barcode='TL'+Math.floor(Math.random()*999999)
-
-firebase.database()
-.ref('stock')
-.once('value')
-.then(s=>{
-
-let data=s.val()||{}
-
-let foundKey=null
-
-for(let key in data){
-
-let item=data[key]
-
-if(
-item.client===client &&
-item.product===product &&
-item.color===color &&
-item.size===size
-){
-
-foundKey=key
-
-}
-
-}
-
-if(foundKey){
-
-firebase.database()
-.ref('stock/'+foundKey+'/qty')
-.set(
-Number(data[foundKey].qty)+qty
-)
-
-}else{
-
-firebase.database()
-.ref('stock/'+Date.now())
-.set({
-
-client,
-product,
-color,
-size,
-qty,
-price,
-barcode
-
-})
-
-}
-
-alert('تم حفظ المنتج')
-
-})
-
-}
-
-/* ======================
-   LOAD STOCK
-====================== */
-
-function loadStock(){
-
-firebase.database()
-.ref('stock')
-.on('value',snap=>{
-
-let data=snap.val()||{}
-
-let html=''
-let count=0
-
-for(let key in data){
-
-count++
-
-let s=data[key]
-
-let low =
-Number(s.qty)<5
-?'stockLow'
-:''
-
-html += `
-
-<tr class="${low}">
-
-<td>${s.client}</td>
-
-<td>${s.product}</td>
-
-<td>${s.color}</td>
-
-<td>${s.size}</td>
-
-<td>${s.qty}</td>
-
-<td>${s.price} ج.م</td>
-
-<td>${s.barcode}</td>
-
-<td>
-
-<button class="printBtn"
-onclick="window.print()">
-
-طباعة
-
-</button>
-
-</td>
-
-</tr>
-
-`
-
-}
-
-document.getElementById('stockTable')
-.innerHTML=html
-
-document.getElementById('productsCard')
-.innerText=count
-
-})
-
-}
-
-/* ======================
-   CLIENT DATA
-====================== */
-
-function loadClientData(){
-
-firebase.database()
-.ref('accounts/'+currentUser)
-.on('value',snap=>{
-
-let d=snap.val()
-
-if(!d)return
-
-if(d.freeze===true){
-
-alert('تم تجميد الحساب')
-
-location.reload()
-
-}
-
-document.getElementById('clientWelcome')
-.innerHTML='👋 '+currentUser
-
-document.getElementById('clientQtyCard')
-.innerText=d.qty||0
-
-document.getElementById('clientPaidCard')
-.innerText=
-(d.paid||0)+' ج.م'
-
-document.getElementById('clientExpenseCard')
-.innerText=
-(d.expense||0)+' ج.م'
-
-document.getElementById('clientStateCard')
-.innerText=
-d.freeze?'مجمد':'نشط'
-
-document.getElementById('profileName')
-.innerText=currentUser
-
-document.getElementById('profileRole')
-.innerText=d.role
-
-document.getElementById('profileLastLogin')
-.innerText=new Date().toLocaleString('ar-EG')
-
-document.getElementById('invoiceClientName')
-.innerText=currentUser
-
-document.getElementById('invoiceQty')
-.innerText=d.qty||0
-
-document.getElementById('invoicePaid')
-.innerText=(d.paid||0)+' ج.م'
-
-document.getElementById('invoiceExpense')
-.innerText=(d.expense||0)+' ج.م'
-
-})
-
-}
-
-/* ======================
-   CLIENT STORE
-====================== */
-
-function loadClientStore(){
-
-firebase.database()
-.ref('stock')
-.on('value',snap=>{
-
-let data=snap.val()||{}
-
-let html=''
-
-for(let key in data){
-
-let s=data[key]
-
-if(s.client!==currentUser)continue
-
-html += `
-
-<tr>
-
-<td>${s.product}</td>
-<td>${s.color}</td>
-<td>${s.size}</td>
-<td>${s.qty}</td>
-<td>${s.price} ج.م</td>
-<td>${s.barcode}</td>
-
-</tr>
-
-`
-
-}
-
-document.getElementById('clientStoreTable')
-.innerHTML=html
-
-})
-
-}
-
-function filterStore(){
-
-let val=
-document.getElementById('storeSearch')
-.value.toLowerCase()
-
-document.querySelectorAll('#clientStoreTable tr')
-.forEach(row=>{
-
-row.style.display=
-row.innerText.toLowerCase().includes(val)
-?'':'none'
-
-})
-
-}
-
-/* ======================
-   CHAT SYSTEM
-====================== */
-
-function sendMessage(){
-
-let txt=
-document.getElementById('chatInput').value
-
-if(!txt)return
-
-firebase.database()
-.ref('chat')
-.push({
-
-user:currentUser,
-text:txt,
-time:new Date().toLocaleTimeString('ar-EG')
-
-})
-
-document.getElementById('chatInput').value=''
-
-}
-
-function sendClientMessage(){
-
-let txt=
-document.getElementById('clientChatInput').value
-
-if(!txt)return
-
-firebase.database()
-.ref('chat')
-.push({
-
-user:currentUser,
-text:txt,
-time:new Date().toLocaleTimeString('ar-EG')
-
-})
-
-document.getElementById('clientChatInput').value=''
-
-}
-
-function loadChat(){
-
-firebase.database()
-.ref('chat')
-.on('value',snap=>{
-
-let data=snap.val()||{}
-
-let html=''
-
-for(let key in data){
-
-let m=data[key]
-
-let cls=
-m.user==='محمد'
-?'ownerMsg'
-:'clientMsg'
-
-html += `
-
-<div class="msg ${cls}">
-
-<b>${m.user}</b>
-
-<br>
-
-${m.text}
-
-<div style="font-size:12px;margin-top:6px">
-
-${m.time}
-
-</div>
-
-</div>
-
-`
-
-}
-
-document.getElementById('chatBox')
-.innerHTML=html
-
-document.getElementById('chatBox')
-.scrollTop=
-document.getElementById('chatBox')
-.scrollHeight
-
-})
-
-}
-
-function loadClientChat(){
-
-firebase.database()
-.ref('chat')
-.on('value',snap=>{
-
-let data=snap.val()||{}
-
-let html=''
-
-for(let key in data){
-
-let m=data[key]
-
-if(
-m.user!==currentUser &&
-m.user!=='محمد'
-)continue
-
-let cls=
-m.user==='محمد'
-?'ownerMsg'
-:'clientMsg'
-
-html += `
-
-<div class="msg ${cls}">
-
-<b>${m.user}</b>
-
-<br>
-
-${m.text}
-
-<div style="font-size:12px;margin-top:6px">
-
-${m.time}
-
-</div>
-
-</div>
-
-`
-
-}
-
-document.getElementById('clientChatBox')
-.innerHTML=html
-
-document.getElementById('clientChatBox')
-.scrollTop=
-document.getElementById('clientChatBox')
-.scrollHeight
-
-})
-
-}
-
-/* ======================
-   TYPING SYSTEM
-====================== */
-
-function typingNow(){
-
-firebase.database()
-.ref('typing/'+currentUser)
-.set(true)
-
-setTimeout(()=>{
-
-firebase.database()
-.ref('typing/'+currentUser)
-.set(false)
-
-},1500)
-
-}
-
-firebase.database()
-.ref('typing')
-.on('value',snap=>{
-
-let data=snap.val()||{}
-
-let txt=''
-
-for(let key in data){
-
-if(data[key]===true){
-
-txt=key+' يكتب الآن...'
-
-}
-
-}
-
-let box=document.getElementById('typingBox')
-
-if(box){
-
-box.innerText=txt
-
-}
-
-})
-
-/* ======================
-   NOTIFICATIONS
-====================== */
-
-function saveNotification(text){
-
-firebase.database()
-.ref('notifications')
-.push({
-
-text:text,
-time:new Date().toLocaleString('ar-EG')
-
-})
-
-}
-
-function sendNotice(){
-
-let msg=
-document.getElementById('noticeInput').value
-
-if(!msg)return
-
-firebase.database()
-.ref('notice')
-.set(msg)
-
-saveNotification(msg)
-
-playNotificationSound()
-
-let speech=
-new SpeechSynthesisUtterance(msg)
-
-speech.lang='ar-EG'
-
-speechSynthesis.speak(speech)
-
-alert('تم إرسال الإشعار')
-
-}
-
-function loadClientNotifications(){
-
-firebase.database()
-.ref('notifications')
-.on('value',snap=>{
-
-let data=snap.val()||{}
-
-let html=''
-
-for(let key in data){
-
-let n=data[key]
-
-html += `
-
-<div class="notificationItem">
-
-<i class="fa fa-bell"></i>
-
-${n.text}
-
-<div style="font-size:12px;margin-top:8px;color:#94a3b8">
-
-${n.time}
-
-</div>
-
-</div>
-
-`
-
-}
-
-document.getElementById('notificationsList')
-.innerHTML=html
-
-})
-
-}
-
-firebase.database()
-.ref('notice')
-.on('value',snap=>{
-
-let txt=snap.val()
-
-if(!txt)return
-
-let ownerBar=
-document.getElementById('globalNoticeBar')
-
-if(ownerBar){
-
-ownerBar.innerText=txt
-
-}
-
-let clientBar=
-document.getElementById('clientNoticeBar')
-
-if(clientBar){
-
-clientBar.innerText=txt
-
-}
-
-})
-
-function playNotificationSound(){
-
-let audio=new Audio(
-'https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a73467.mp3'
-)
-
-audio.play()
-
-}
-
-firebase.database()
-.ref('notifications')
-.on('child_added',snap=>{
-
-let n=snap.val()
-
-if(Notification.permission==='granted'){
-
-new Notification('إشعار جديد',{
-
-body:n.text
-
-})
-
-}
-
-playNotificationSound()
-
-let speech=
-new SpeechSynthesisUtterance(n.text)
-
-speech.lang='ar-EG'
-
-speechSynthesis.speak(speech)
-
-})
-
-/* ======================
-   PRINT INVOICE
-====================== */
-
-function printInvoice(){
-
-let area=
-document.getElementById('invoiceArea')
-.innerHTML
-
-let win=window.open()
-
-win.document.write(`
-
-<html>
-
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TAL3A FACTORY ERP SYSTEM — النسخة الاحترافية الشاملة</title>
 
-<title>فاتورة العميل</title>
+<!-- FontAwesome للأيقونات والـ Cairo Font للفخامة -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap');
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Cairo',sans-serif;
+}
 
 body{
-font-family:Cairo;
-padding:30px;
-direction:rtl;
+    background:#050816;
+    color:white;
+    overflow-x:hidden;
+    min-height:100vh;
+}
+
+body::before{
+    content:'';
+    position:fixed;
+    inset:0;
+    background:url('https://images.unsplash.com/photo-1445205170230-053b83016050?q=80&w=1600&auto=format&fit=crop') center/cover;
+    filter:brightness(.12) blur(3px);
+    z-index:-2;
+}
+
+body::after{
+    content:'';
+    position:fixed;
+    inset:0;
+    background:linear-gradient(135deg,#000000d0,#111827fa,#020617fb);
+    z-index:-1;
+}
+
+:root{
+    --main:#7c3aed;
+    --main2:#06b6d4;
+    --danger:#ef4444;
+    --success:#10b981;
+    --warning:#f59e0b;
+    --glass:rgba(255,255,255,.06);
+    --border:rgba(255,255,255,.12);
+}
+
+.screen{
+    display:none;
+    padding:20px;
+}
+
+.active{
+    display:block;
+    animation:fade .4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes fade{
+    from{opacity:0;transform:translateY(15px)}
+    to{opacity:1;transform:none}
+}
+
+.loginBox{
+    width:95%;
+    max-width:440px;
+    margin:90px auto;
+    background:rgba(2, 4, 15, 0.75);
+    border:1px solid var(--border);
+    backdrop-filter:blur(25px);
+    padding:40px;
+    border-radius:30px;
+    box-shadow:0 20px 50px rgba(0,0,0,0.8);
+    text-align: center;
+}
+
+.logoTitle{
+    font-size:36px;
+    font-weight:900;
+    text-align:center;
+    margin-bottom:25px;
+    background:linear-gradient(90deg,#fff,var(--main2),var(--main));
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    letter-spacing: 1px;
+}
+
+.input, .searchBar{
+    width:100%;
+    padding:15px 18px;
+    margin-top:14px;
+    border:1px solid rgba(255,255,255,.08);
+    outline:none;
+    background:rgba(255,255,255,.05);
+    color:white;
+    border-radius:16px;
+    font-size:15px;
+    transition: .3s;
+}
+
+.input:focus, .searchBar:focus{
+    border-color: var(--main2);
+    background:rgba(255,255,255,.1);
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
+}
+
+select.input option {
+    background: #0f172a;
+    color: #fff;
+}
+
+.btn{
+    width:100%;
+    padding:16px;
+    border:none;
+    border-radius:16px;
+    margin-top:20px;
+    font-size:16px;
+    font-weight:800;
+    cursor:pointer;
+    transition:.3s ease-in-out;
+    background:linear-gradient(45deg,var(--main),var(--main2));
+    color:white;
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+}
+
+.btn:hover{
+    transform:scale(1.02);
+    box-shadow:0 0 30px #7c3aed;
+}
+
+.layout{
+    display:flex;
+    gap:25px;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+.sidebar{
+    width:280px;
+    background:rgba(255,255,255,.03);
+    backdrop-filter:blur(20px);
+    border:1px solid var(--border);
+    min-height:92vh;
+    border-radius:25px;
+    padding:25px 20px;
+    position:sticky;
+    top:15px;
+}
+
+.sidebar h2{
+    text-align:center;
+    margin-bottom:25px;
+    font-size:22px;
+    font-weight: 800;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 15px;
+    color: #f8fafc;
+}
+
+.sideBtn{
+    width:100%;
+    padding:14px 18px;
+    margin-top:10px;
+    border:none;
+    border-radius:14px;
+    background:rgba(255,255,255,.05);
+    color:#e2e8f0;
+    font-weight:700;
+    font-size: 15px;
+    cursor:pointer;
+    transition:.3s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sideBtn i {
+    width: 20px;
+    font-size: 16px;
+}
+
+.sideBtn:hover, .sideBtn.activeMenu{
+    background:linear-gradient(45deg,var(--main),var(--main2));
+    color: white;
+    transform:translateX(-5px);
+}
+
+.content{
+    flex:1;
+}
+
+.topBar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+    background:rgba(255,255,255,.04);
+    padding:20px 25px;
+    border-radius:20px;
+    backdrop-filter:blur(20px);
+    border: 1px solid var(--border);
+}
+
+.topBar h1 {
+    font-size: 24px;
+    font-weight: 800;
+}
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+    gap:20px;
+    margin-bottom:25px;
 }
 
 .card{
-border:1px solid #ccc;
-padding:20px;
-border-radius:20px;
-margin-bottom:15px;
+    background:rgba(255,255,255,.04);
+    border:1px solid var(--border);
+    padding:25px;
+    border-radius:22px;
+    backdrop-filter:blur(15px);
+    position:relative;
+    overflow:hidden;
 }
 
+.card::before{
+    content:'';
+    position:absolute;
+    width:120px;
+    height:120px;
+    background:linear-gradient(45deg,var(--main2),transparent);
+    border-radius:50%;
+    left:-50px;
+    top:-50px;
+    opacity:.3;
+}
+
+.card h3{
+    font-size:14px;
+    margin-bottom:10px;
+    color:#94a3b8;
+    font-weight: 600;
+}
+
+.card p{
+    font-size:28px;
+    font-weight:900;
+}
+
+.panel{
+    background:rgba(255,255,255,.03);
+    border:1px solid var(--border);
+    padding:25px;
+    border-radius:22px;
+    margin-bottom:25px;
+    backdrop-filter:blur(15px);
+}
+
+.panelTitle{
+    font-size:18px;
+    margin-bottom:20px;
+    font-weight:800;
+    color: #f1f5f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:15px;
+}
+
+.tableWrapper {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 15px;
+    border-radius:18px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    overflow:hidden;
+}
+
+th{
+    background:#0f172a;
+    padding:15px;
+    font-weight: 700;
+    font-size: 14px;
+    color: #94a3b8;
+}
+
+td{
+    padding:15px;
+    background:rgba(255,255,255,.02);
+    text-align:center;
+    font-size: 15px;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+}
+
+tr:hover td{
+    background: rgba(255,255,255,.06) !important;
+}
+
+tr:nth-child(even) td{
+    background:rgba(255,255,255,.04);
+}
+
+.chatBox{
+    height:420px;
+    overflow-y:auto;
+    padding:20px;
+    background:#020612;
+    border-radius:20px;
+    margin-bottom:15px;
+    border: 1px solid var(--border);
+}
+
+.msg{
+    padding:14px;
+    border-radius:18px;
+    margin-top:12px;
+    max-width:70%;
+    line-height: 1.6;
+    position: relative;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+}
+
+.ownerMsg{
+    background:linear-gradient(135deg, #1d4ed8, #2563eb);
+    margin-right:auto;
+    border-bottom-right-radius: 4px;
+}
+
+.clientMsg{
+    background:linear-gradient(135deg, #334155, #1e293b);
+    margin-left:auto;
+    border-bottom-left-radius: 4px;
+}
+
+.msg b {
+    display: block;
+    font-size: 12px;
+    margin-bottom: 4px;
+    color: #cbd5e1;
+}
+
+.noticeBar{
+    background:linear-gradient(90deg,var(--warning),var(--danger));
+    padding:15px;
+    font-weight:800;
+    border-radius:16px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
+    margin-bottom:25px;
+}
+
+.stockLow td {
+    background:#5c1d1d !important;
+    color:#fca5a5;
+    font-weight: 700;
+}
+
+.actionBtn {
+    padding:6px 14px;
+    border:none;
+    border-radius:10px;
+    color:white;
+    cursor:pointer;
+    font-weight:700;
+    font-size:13px;
+    transition: .2s;
+    margin: 2px;
+}
+
+.editBtn { background: var(--main2); }
+.deleteBtn { background: var(--danger); }
+.printBtn { background: var(--success); }
+
+.killBtn{
+    background:linear-gradient(45deg,#dc2626,#7f1d1d);
+    border: 1px solid rgba(255,255,255,.1);
+}
+
+.freezeBtn{
+    background:linear-gradient(45deg,#f59e0b,#b45309);
+}
+
+/* الحبشتكانة: الـ Toast Notification المنبثقة */
+#toastBox {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 10000;
+}
+.toast {
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid var(--main2);
+    border-right: 5px solid var(--main2);
+    padding: 15px 25px;
+    border-radius: 12px;
+    color: white;
+    font-weight: 700;
+    margin-top: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    backdrop-filter: blur(10px);
+    animation: toastIn .3s ease;
+}
+@keyframes toastIn {
+    from { transform: translateX(-100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@media(max-width:900px){
+    .layout{ flex-direction:column; }
+    .sidebar{ width:100%; min-height:auto; position: static; }
+}
+
+/* طباعة الباركود والفواتير بشكل احترافي ملصقات فقط */
+@media print {
+    body * { visibility: hidden; }
+    .print-section, .print-section * { visibility: visible; }
+    .print-section { position: absolute; left: 0; top: 0; width: 100%; color: #000; background: #fff; padding: 20px; border-radius: 0; }
+}
 </style>
-
 </head>
-
 <body>
 
-${area}
+<div id="toastBox"></div>
 
-</body>
+<!-- شاشة تسجيل الدخول السينمائية -->
+<div id="loginScreen" class="screen active">
+    <div class="loginBox">
+        <div class="logoTitle">TAL3A FACTORY ERP</div>
+        <p style="color:#94a3b8; font-size:14px; margin-bottom:10px;">نظام الإدارة السحابي الشامل لمصنع طلة</p>
+        <input id="loginUser" class="input" placeholder="اسم المستخدم أو العميل">
+        <input id="loginPass" type="password" class="input" placeholder="كلمة السر">
+        <button class="btn" onclick="login()"><i class="fa-solid fa-right-to-bracket"></i> دخول السيستم</button>
+    </div>
+</div>
 
-</html>
+<!-- الشاشة الرئيسية للنظام بعد الدخول -->
+<div id="ownerScreen" class="screen">
+    <div class="layout">
 
-`)
+        <!-- القائمة الجانبية الذكية الملوّنة -->
+        <div class="sidebar">
+            <h2 id="userPanelTitle">لوحة التحكم</h2>
+            <div id="menuContainer">
+                <button class="sideBtn activeMenu" onclick="showPage('dashboardPage', this)"><i class="fa-solid fa-chart-pie"></i> الرئيسية</button>
+                <button class="sideBtn owner-only" onclick="showPage('accountsPage', this)"><i class="fa-solid fa-users-gear"></i> العملاء والحسابات</button>
+                <button class="sideBtn" onclick="showPage('inventoryPage', this)"><i class="fa-solid fa-boxes-stacked"></i> مخزن البضاعة</button>
+                <button class="sideBtn owner-only" onclick="showPage('tailorPage', this)"><i class="fa-solid fa-scissors"></i> إنتاج الترزية</button>
+                <button class="sideBtn" onclick="showPage('chatPage', this)"><i class="fa-solid fa-comments"></i> شات المصنع</button>
+                <button class="sideBtn owner-only" onclick="showPage('notificationsPage', this)"><i class="fa-solid fa-bell"></i> الإشعارات</button>
+                <button class="sideBtn owner-only" onclick="showPage('settingsPage', this)"><i class="fa-solid fa-gear"></i> الإعدادات الشاملة</button>
+                <button class="sideBtn killBtn owner-only" onclick="killSystem()"><i class="fa-solid fa-skull-crossbones"></i> Kill Switch الكلي</button>
+                <button class="sideBtn" style="margin-top:40px; background:rgba(239,68,68,0.15);" onclick="logout()"><i class="fa-solid fa-power-off"></i> تسجيل خروج</button>
+            </div>
+        </div>
 
-win.print()
+        <!-- ساحة عرض الصفحات والمحتوى المتغير -->
+        <div class="content">
+            <div class="noticeBar" id="globalNoticeBar">مرحباً بك داخل نظام إدارة مصنع طلة الذكي</div>
 
+            <!-- صفحة الرئيسية والإحصائيات -->
+            <div id="dashboardPage" class="page-content">
+                <div class="topBar">
+                    <div>
+                        <h1 id="welcomeText">مرحباً بك يا محمد</h1>
+                        <p style="color:#94a3b8; font-size:14px; margin-top:4px;">إليك تقرير الأداء الفوري والحسابات الحالية</p>
+                    </div>
+                    <div id="onlineStatus" style="font-weight:700;">🟢 متصل بالسيرفر المباشر</div>
+                </div>
+
+                <div class="cards">
+                    <div class="card">
+                        <h3>إجمالي صافي الأرباح (المدفوعات)</h3>
+                        <p id="profitCard" style="color:var(--success);">0 ج.م</p>
+                    </div>
+                    <div class="card">
+                        <h3>عدد الحسابات المسجلة</h3>
+                        <p id="clientsCard" style="color:var(--main2);">0</p>
+                    </div>
+                    <div class="card">
+                        <h3>تنوع أصناف المنتجات</h3>
+                        <p id="productsCard" style="color:var(--warning);">0</p>
+                    </div>
+                    <div class="card">
+                        <h3>إجمالي مديونيات المصنع الخارجية</h3>
+                        <p id="debtsCard" style="color:var(--danger);">0 ج.م</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- صفحة الحسابات والعملاء -->
+            <div id="accountsPage" class="page-content" style="display:none">
+                <div class="panel">
+                    <div class="panelTitle"><span><i class="fa-solid fa-user-plus"></i> إضافة أو تعديل بيانات حساب عميل</span></div>
+                    <div class="grid">
+                        <input id="accUser" class="input" placeholder="اسم الحساب / العميل">
+                        <input id="accPass" class="input" placeholder="كلمة السر للدخول">
+                        <select id="accRole" class="input">
+                            <option value="client">عميل عادي</option>
+                            <option value="supervisor">مشرف مصنع</option>
+                            <option value="owner">مالك كلي (محمد)</option>
+                        </select>
+                        <input id="accQty" class="input" type="number" placeholder="إجمالي قطع العميل">
+                        <input id="accPaid" class="input" type="number" placeholder="إجمالي المبالغ المدفوعة (ج.م)">
+                        <input id="accExpense" class="input" type="number" placeholder="إجمالي المصاريف والخامات (ج.م)">
+                    </div>
+                    <button class="btn" onclick="saveAccount()"><i class="fa-solid fa-floppy-disk"></i> حفظ الحساب في قاعدة البيانات</button>
+                </div>
+
+                <div class="panel">
+                    <div class="panelTitle">
+                        <span><i class="fa-solid fa-table-list"></i> جدول الحسابات الفعلي</span>
+                        <input id="searchAcc" class="searchBar" style="max-width:250px; margin:0;" placeholder="بحث فوري بالاسم..." oninput="filterTable('accountsTable', this.value)">
+                    </div>
+                    <div class="tableWrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>اسم المستخدم</th>
+                                    <th>الصلاحية</th>
+                                    <th>القطع</th>
+                                    <th>المدفوع</th>
+                                    <th>المصروف</th>
+                                    <th>الرصيد/المديونية</th>
+                                    <th>حالة الحساب</th>
+                                    <th>إجراءات الإدارة</th>
+                                </tr>
+                            </thead>
+                            <tbody id="accountsTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- صفحة المخزن السحابي الكلي -->
+            <div id="inventoryPage" class="page-content" style="display:none">
+                <div class="panel owner-only">
+                    <div class="panelTitle"><span><i class="fa-solid fa-box-open"></i> تسجيل شحنة منتج جديد بالمخزن</span></div>
+                    <div class="grid">
+                        <input id="stockClient" class="input" placeholder="اسم العميل (يجب أن يكون مسجلاً)">
+                        <input id="productName" class="input" placeholder="اسم الصنف (مثل: فستان شيفون)">
+                        <input id="productColor" class="input" placeholder="اللون">
+                        <input id="productSize" class="input" placeholder="المقاس">
+                        <input id="productQty" type="number" class="input" placeholder="الكمية الفاشلة/الموجودة">
+                        <input id="productPrice" type="number" class="input" placeholder="سعر القطعة للمصنع">
+                    </div>
+                    <button class="btn" onclick="addStock()"><i class="fa-solid fa-square-plus"></i> إدراج المنتج وتوليد باركود تلقائي</button>
+                </div>
+
+                <div class="panel">
+                    <div class="panelTitle">
+                        <span><i class="fa-solid fa-warehouse"></i> جرد المخزن التفصيلي</span>
+                        <input id="searchStock" class="searchBar" style="max-width:250px; margin:0;" placeholder="البحث في المخزن..." oninput="filterTable('stockTable', this.value)">
+                    </div>
+                    <div class="tableWrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>العميل الملك</th>
+                                    <th>اسم المنتج</th>
+                                    <th>اللون</th>
+                                    <th>المقاس</th>
+                                    <th>الكمية المتاحة</th>
+                                    <th>السعر</th>
+                                    <th>إجمالي القيمة</th>
+                                    <th>كود الباركود</th>
+                                    <th>خيارات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stockTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- صفحة الترزية والإنتاج الفعلي للمصنع -->
+            <div id="tailorPage" class="page-content" style="display:none">
+                <div class="panel">
+                    <div class="panelTitle"><span><i class="fa-solid fa-scissors"></i> شيت تسجيل جرد إنتاج الترزية اليومي والأسبوعي</span></div>
+                    <div class="grid">
+                        <input id="tailorName" class="input" placeholder="اسم الأسطى الترزي">
+                        <input id="tailorModel" class="input" placeholder="اسم الموديل المخيط">
+                        <input id="tailorDone" type="number" class="input" placeholder="عدد القطع المنجزة">
+                        <input id="tailorPrice" type="number" class="input" placeholder="حساب الترزي في القطعة الواحد">
+                    </div>
+                    <button class="btn" onclick="addTailorProduction()"><i class="fa-solid fa-circle-check"></i> تسجيل حركة الإنتاج وصرف الحساب</button>
+                </div>
+
+                <div class="panel">
+                    <div class="panelTitle">
+                        <span><i class="fa-solid fa-money-check-dollar"></i> كشف إنتاج ومستحقات الترزية الفعلي</span>
+                        <h4 id="totalTailorCalculations" style="color:var(--success)">إجمالي مستحقات كل الترزية: 0 ج.م</h4>
+                    </div>
+                    <div class="tableWrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>اسم الترزي</th>
+                                    <th>الموديل</th>
+                                    <th>عدد القطع المنجزة</th>
+                                    <th>أجرة القطعة</th>
+                                    <th>إجمالي مستحقاته</th>
+                                    <th>إجراء</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tailorTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- صفحة شات وغرفة عمليات المصنع المباشرة -->
+            <div id="chatPage" class="page-content" style="display:none">
+                <div class="panel">
+                    <div class="panelTitle"><span><i class="fa-solid fa-comments"></i> غرفة المحادثة والعمليات الفورية لمصنع طلة</span></div>
+                    <div class="chatBox" id="chatBox"></div>
+                    <div style="display:flex; gap:10px; margin-top:10px;">
+                        <input id="chatInput" class="input" style="margin:0;" placeholder="اكتب رسالة توجيهية أو استفسار هنا..." onkeydown="if(event.key==='Enter') sendMessage()">
+                        <button class="btn" style="margin:0; width:120px;" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i> إرسال</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- صفحة إدارة الإشعارات العامة والصوتية -->
+            <div id="notificationsPage" class="page-content" style="display:none">
+                <div class="panel">
+                    <div class="panelTitle"><span><i class="fa-solid fa-bullhorn"></i> تعميم منشور أو أمر إداري عاجل (ناطق بالصوت)</span></div>
+                    <input id="noticeInput" class="input" placeholder="اكتب الإعلان هنا ليظهر للجميع وينطق فوراً بمكبر الصوت...">
+                    <button class="btn" onclick="sendNotice()"><i class="fa-solid fa-volume-high"></i> بث الإشعار الصوتي الفوري في المصنع</button>
+                </div>
+            </div>
+
+            <!-- صفحة الإعدادات الاحترافية والنسخ الاحتياطي -->
+            <div id="settingsPage" class="page-content" style="display:none">
+                <div class="panel">
+                    <div class="panelTitle"><span><i class="fa-solid fa-sliders"></i> أدوات الصيانة وتأمين النظام الذاتي</span></div>
+                    <p style="color:#94a3b8; font-size:14px; margin-bottom:15px;">يمكنك الاحتفاظ بملف صلب من كافة الحسابات والمخازن والترزية للعودة له في حالات الطوارئ.</p>
+                    <div style="display:flex; gap:15px; flex-wrap:wrap;">
+                        <button class="btn freezeBtn" style="flex:1; margin:0;" onclick="exportBackup()"><i class="fa-solid fa-cloud-arrow-down"></i> تصدير نسخة احتياطية كاملة (JSON)</button>
+                        <button class="btn editBtn" style="flex:1; margin:0; background:var(--main)" onclick="triggerImport()"><i class="fa-solid fa-cloud-arrow-up"></i> استيراد وقراءة ملف احتياطي</button>
+                    </div>
+                    <input type="file" id="importFile" style="display:none" onchange="importBackup(this)">
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- حاوية طباعة الباركود المخفية -->
+<div id="printArea" class="print-section" style="display:none;"></div>
+
+<script>
+// تكوين اتصال الـ Firebase Realtime Database
+const firebaseConfig = {
+    databaseURL: 'https://mama-c6e6b-default-rtdb.firebaseio.com/'
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+let currentUser = null;
+let currentRole = null;
+
+// التحقق من الجلسة المخزنة في المتصفح تلقائياً عند الفتح (حبشتكانة الـ Session)
+window.onload = function() {
+    let savedUser = localStorage.getItem('erp_user');
+    let savedRole = localStorage.getItem('erp_role');
+    if(savedUser && savedRole) {
+        currentUser = savedUser;
+        currentRole = savedRole;
+        initSystemView();
+    }
 }
 
-/* ======================
-   BACKUP JSON
-====================== */
+// دالة تسجيل الدخول وصلاحيات الـ Security
+function login(){
+    let u = document.getElementById('loginUser').value.trim();
+    let p = document.getElementById('loginPass').value.trim();
 
-function backupJSON(){
+    if(!u || !p) return showToast('برجاء ملء جميع الحقول أولاً', 'var(--danger)');
 
-firebase.database()
-.ref('/')
-.once('value')
-.then(snap=>{
+    // الدخول الفوري السريع للأدمن الأساسي (محمد)
+    if(u === 'محمد' && p === '111221'){
+        currentUser = 'محمد';
+        currentRole = 'owner';
+        localStorage.setItem('erp_user', currentUser);
+        localStorage.setItem('erp_role', currentRole);
+        initSystemView();
+        return;
+    }
 
-let dataStr =
-"data:text/json;charset=utf-8," +
-encodeURIComponent(
-JSON.stringify(snap.val())
-)
+    // التحقق من بقية المستخدمين في قاعدة البيانات
+    db.ref('accounts/' + u).once('value').then(s => {
+        let data = s.val();
+        if(!data){
+            showToast('خطأ: اسم المستخدم غير مسجل بالنظام!', 'var(--danger)');
+            return;
+        }
+        if(data.password !== p){
+            showToast('خطأ: كلمة المرور غير صحيحة!', 'var(--danger)');
+            return;
+        }
+        if(data.freeze === true){
+            showToast('حسابك مجمد حالياً! راجع الإدارة العليا لمصنع طلة', 'var(--danger)');
+            return;
+        }
 
-let a=document.createElement('a')
-
-a.href=dataStr
-
-a.download='TAL3A_BACKUP.json'
-
-a.click()
-
-})
-
+        currentUser = u;
+        currentRole = data.role;
+        localStorage.setItem('erp_user', currentUser);
+        localStorage.setItem('erp_role', currentRole);
+        initSystemView();
+        showToast('مرحباً بك! تم الدخول بنجاح.', 'var(--success)');
+    });
 }
 
-/* ======================
-   KILL SWITCH
-====================== */
+function initSystemView() {
+    document.getElementById('loginScreen').classList.remove('active');
+    document.getElementById('ownerScreen').classList.add('active');
+    document.getElementById('welcomeText').innerText = `مرحباً بك يا ${currentUser}`;
+    document.getElementById('userPanelTitle').innerText = currentRole === 'owner' ? 'لوحة الأستاذ محمد' : `لوحة: ${currentUser}`;
 
-function killSystem(){
+    // إخفاء وحماية العناصر الخاصة بالمالك فقط عن بقية العملاء والمشرفين
+    if(currentRole !== 'owner') {
+        document.querySelectorAll('.owner-only').forEach(el => el.style.display = 'none');
+    } else {
+        document.querySelectorAll('.owner-only').forEach(el => el.style.display = 'flex');
+        // تصحيح الأزرار التي تعتمد على الـ Block في العرض للـ Sidebar
+        document.querySelectorAll('button.owner-only').forEach(el => el.style.display = 'block');
+    }
 
-if(confirm('قطع الاتصال عن جميع الحسابات؟')){
-
-firebase.database()
-.ref('systemOff')
-.set(true)
-
-alert('تم تنفيذ Kill Switch')
-
+    loadAll();
 }
 
+function logout(){
+    localStorage.clear();
+    location.reload();
 }
 
-firebase.database()
-.ref('systemOff')
-.on('value',snap=>{
-
-if(
-snap.val()===true &&
-currentUser!=='محمد'
-){
-
-alert('تم إيقاف النظام بواسطة الإدارة')
-
-location.reload()
-
+// التنقل الذكي بين الصفحات مع تمييز الزر النشط في القائمة الجانبية
+function showPage(id, btnElement){
+    document.querySelectorAll('.page-content').forEach(p => p.style.display = 'none');
+    document.getElementById(id).style.display = 'block';
+    
+    document.querySelectorAll('.sideBtn').forEach(b => b.classList.remove('activeMenu'));
+    if(btnElement) btnElement.classList.add('activeMenu');
 }
 
-})
+// الفلترة والبحث الفوري واللحظي داخل الجداول (حبشتكانة الـ Live Search)
+function filterTable(tableId, query) {
+    let filter = query.toLowerCase();
+    let rows = document.getElementById(tableId).getElementsByTagName('tr');
+    for (let i = 0; i < rows.length; i++) {
+        let text = rows[i].textContent || rows[i].innerText;
+        rows[i].style.display = text.toLowerCase().includes(filter) ? "" : "none";
+    }
+}
 
-/* ======================
-   LOAD ALL OWNER
-====================== */
+// الـ Toast التنبيهية المتطورة لظهور الرسائل بشكل جذاب
+function showToast(text, color = 'var(--main2)') {
+    let box = document.getElementById('toastBox');
+    let toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.style.borderRightColor = color;
+    toast.innerText = text;
+    box.appendChild(toast);
+    setTimeout(() => { toast.remove(); }, 4000);
+}
 
+// حفظ وتعديل حسابات العملاء
+function saveAccount(){
+    let user = document.getElementById('accUser').value.trim();
+    let pass = document.getElementById('accPass').value.trim();
+    if(!user || !pass) return showToast('يرجى كتابة اسم المستخدم وكلمة السر', 'var(--warning)');
+
+    let data = {
+        password: pass,
+        role: document.getElementById('accRole').value,
+        qty: Number(document.getElementById('accQty').value) || 0,
+        paid: Number(document.getElementById('accPaid').value) || 0,
+        expense: Number(document.getElementById('accExpense').value) || 0,
+        freeze: false
+    };
+
+    db.ref('accounts/' + user).set(data).then(() => {
+        showToast(`تم حفظ وتحديث حساب العميل ${user} كملف نشط`, 'var(--success)');
+        // تصفير الخانات
+        document.getElementById('accUser').value = '';
+        document.getElementById('accPass').value = '';
+    });
+}
+
+// إدراج وحفظ المنتجات في المخزن وتوليد كود باركود خاص بمصنع طلة
+function addStock(){
+    let client = document.getElementById('stockClient').value.trim();
+    let product = document.getElementById('productName').value.trim();
+    let qty = Number(document.getElementById('productQty').value) || 0;
+    let price = Number(document.getElementById('productPrice').value) || 0;
+
+    if(!client || !product || qty <= 0) return showToast('تأكد من كتابة اسم العميل والصنف والكمية الصحيحة', 'var(--warning)');
+
+    let id = Date.now();
+    let data = {
+        client: client,
+        product: product,
+        color: document.getElementById('productColor').value || 'عام',
+        size: document.getElementById('productSize').value || 'Free Size',
+        qty: qty,
+        price: price,
+        barcode: 'TL' + Math.floor(100000 + Math.random() * 900000)
+    };
+
+    db.ref('stock/' + id).set(data).then(() => {
+        showToast('تم إدراج الصنف بنجاح وتوليد الباركود التلقائي', 'var(--success)');
+        document.getElementById('productName').value = '';
+        document.getElementById('productQty').value = '';
+    });
+}
+
+// تسجيل كشف إنتاج الترزية الفعلي والأجور المستحقة
+function addTailorProduction(){
+    let name = document.getElementById('tailorName').value.trim();
+    let model = document.getElementById('tailorModel').value.trim();
+    let done = Number(document.getElementById('tailorDone').value) || 0;
+    let price = Number(document.getElementById('tailorPrice').value) || 0;
+
+    if(!name || !model || done <= 0 || price <= 0) {
+        return showToast('برجاء ملء بيانات إنتاج الترزي بالكامل وبقيم صحيحة', 'var(--danger)');
+    }
+
+    let id = Date.now();
+    let data = { name, model, done, price, total: done * price };
+
+    db.ref('tailors/' + id).set(data).then(() => {
+        showToast(`تم تسجيل إنتاج الأسطى ${name} بنجاح وبقيمة مستحقة ${done*price} ج.م`, 'var(--success)');
+        document.getElementById('tailorModel').value = '';
+        document.getElementById('tailorDone').value = '';
+        document.getElementById('tailorPrice').value = '';
+    });
+}
+
+// دالة تشغيل استدعاء وتحميل جميع البيانات اللحظية من الـ Firebase
 function loadAll(){
-
-loadAccounts()
-loadStock()
-loadChat()
-
+    loadAccounts();
+    loadStock();
+    loadChat();
+    loadTailors();
 }
 
-/* ======================
-   NETWORK STATUS
-====================== */
+function loadAccounts(){
+    db.ref('accounts').on('value', snap => {
+        let data = snap.val() || {};
+        let html = '';
+        let totalProfit = 0;
+        let totalDebts = 0;
+        let clientsCount = 0;
 
-window.addEventListener('offline',()=>{
+        for(let key in data){
+            clientsCount++;
+            let paid = Number(data[key].paid || 0);
+            let exp = Number(data[key].expense || 0);
+            let balance = paid - exp;
 
-let x=document.getElementById('onlineStatus')
+            totalProfit += paid; // إجمالي الكاش المورد للمصنع
+            if(balance < 0) totalDebts += Math.abs(balance); // لو مصروفه أكبر يبقى مديون للمصنع
 
-if(x){
+            // إذا كان المستخدم الحالي عميل عادي، يعرض حسابه هو فقط حماية للخصوصية
+            if(currentRole === 'client' && key !== currentUser) continue;
 
-x.innerHTML='🔴 غير متصل'
+            html += `
+            <tr>
+                <td><b>${key}</b></td>
+                <td><span style="background:rgba(255,255,255,0.07); padding:4px 8px; border-radius:8px;">${data[key].role}</span></td>
+                <td>${data[key].qty || 0}</td>
+                <td style="color:var(--success)">${paid} ج.م</td>
+                <td style="color:var(--warning)">${exp} ج.م</td>
+                <td style="font-weight:bold; color:${balance >= 0 ? 'var(--success)' : 'var(--danger)'}">${balance} ج.م</td>
+                <td>${data[key].freeze ? '🔴 مجمد كلياً' : '🟢 نشط وساري'}</td>
+                <td>
+                    ${currentRole==='owner' ? `
+                    <button class="actionBtn editBtn" onclick="toggleFreezeAcc('${key}', ${data[key].freeze || false})">تعديل الحالة</button>
+                    <button class="actionBtn deleteBtn" onclick="deleteAcc('${key}')"><i class="fa-solid fa-trash"></i></button>
+                    ` : '---'}
+                </td>
+            </tr>
+            `;
+        }
 
+        document.getElementById('accountsTable').innerHTML = html;
+        document.getElementById('profitCard').innerText = totalProfit + ' ج.م';
+        document.getElementById('clientsCard').innerText = clientsCount;
+        document.getElementById('debtsCard').innerText = totalDebts + ' ج.م';
+    });
 }
 
-})
+function loadStock(){
+    db.ref('stock').on('value', snap => {
+        let data = snap.val() || {};
+        let html = '';
+        let count = 0;
+        let lowStockTriggered = false;
 
-window.addEventListener('online',()=>{
+        for(let key in data){
+            // حماية وعرض المخزن الخاص بالعميل فقط لو مكنش صاحب المصنع
+            if(currentRole === 'client' && data[key].client !== currentUser) continue;
 
-let x=document.getElementById('onlineStatus')
+            count++;
+            let qty = Number(data[key].qty || 0);
+            let price = Number(data[key].price || 0);
+            let isLow = qty < 5;
+            let lowClass = isLow ? 'stockLow' : '';
+            
+            if(isLow) lowStockTriggered = true;
 
-if(x){
+            html += `
+            <tr class="${lowClass}">
+                <td>${data[key].client}</td>
+                <td><b>${data[key].product}</b></td>
+                <td>${data[key].color}</td>
+                <td>${data[key].size}</td>
+                <td>${qty} قطعة</td>
+                <td>${price} ج.م</td>
+                <td style="font-weight:700;">${qty * price} ج.م</td>
+                <td><i class="fa-solid fa-barcode"></i> ${data[key].barcode}</td>
+                <td>
+                    <button class="actionBtn printBtn" onclick="printBarcode('${data[key].product}', '${data[key].color}', '${data[key].size}', '${data[key].barcode}')"><i class="fa-solid fa-print"></i> ملصق</button>
+                    ${currentRole==='owner' ? `<button class="actionBtn deleteBtn" onclick="deleteStockRecord('${key}')">حذف</button>` : ''}
+                </td>
+            </tr>
+            `;
+        }
 
-x.innerHTML='🟢 متصل'
+        document.getElementById('stockTable').innerHTML = html;
+        document.getElementById('productsCard').innerText = count;
 
+        // حبشتكانة التنبيه الصوتي الحقيقي والتحذير الفوري للمخازن الفارغة
+        if(lowStockTriggered && currentRole === 'owner') {
+            showToast('⚠️ تحذير: هناك أصناف شارفت على النفاذ في المخازن (أقل من 5 قطع)!', 'var(--danger)');
+        }
+    });
 }
 
-})
+function loadTailors(){
+    db.ref('tailors').on('value', snap => {
+        let data = snap.val() || {};
+        let html = '';
+        let bigTotal = 0;
 
-/* ======================
-   NOTIFICATION PERMISSION
-====================== */
+        for(let key in data) {
+            let total = Number(data[key].total || 0);
+            bigTotal += total;
 
-if(Notification.permission!=='granted'){
-
-Notification.requestPermission()
-
+            html += `
+            <tr>
+                <td><b>${data[key].name}</b></td>
+                <td>${data[key].model}</td>
+                <td>${data[key].done} قطعة</td>
+                <td>${data[key].price} ج.م</td>
+                <td style="color:var(--success); font-weight:700;">${total} ج.م</td>
+                <td><button class="actionBtn deleteBtn" onclick="deleteTailorRecord('${key}')"><i class="fa-solid fa-xmark"></i></button></td>
+            </tr>
+            `;
+        }
+        document.getElementById('tailorTable').innerHTML = html;
+        document.getElementById('totalTailorCalculations').innerText = `إجمالي مستحقات كل الترزية: ${bigTotal} ج.م`;
+    });
 }
 
+// عمليات حذف وتعديل البيانات من السيرفر المباشر
+function deleteAcc(user){
+    if(confirm(`هل أنت متأكد من حذف الحساب الحساب [ ${user} ] نهائياً؟`)){
+        db.ref('accounts/' + user).remove();
+        showToast('تم الحذف', 'var(--danger)');
+    }
+}
+function toggleFreezeAcc(user, status){
+    db.ref('accounts/' + user + '/freeze').set(!status);
+    showToast('تم تغيير حالة الحساب بنجاح', 'var(--warning)');
+}
+function deleteStockRecord(id){
+    if(confirm('هل تريد حذف هذا الصنف من الجرد؟')){ db.ref('stock/' + id).remove(); }
+}
+function deleteTailorRecord(id){
+    if(confirm('حذف سجل إنتاج هذا الترزي؟')){ db.ref('tailors/' + id).remove(); }
+}
+
+// زر الطوارئ القاتل لتعطيل المصنع بالكامل في ثانية (Kill Switch)
+function killSystem(){
+    if(confirm('🚨 تحذير أمني خطير جداً! هل أنت متأكد من تشغيل الـ Kill Switch وتجميد كافة الحسابات والعملاء عن تصفح السيستم فوراً؟')){
+        db.ref('accounts').once('value', snap => {
+            let data = snap.val() || {};
+            for(let key in data) {
+                db.ref('accounts/' + key + '/freeze').set(true);
+            }
+        });
+        showToast('🚨 تم تفعيل بروتوكول الإغلاق التام وتجميد كل الصلاحيات بنجاح!', 'var(--danger)');
+    }
+}
+
+// إرسال الإشعار العام وبث الصوت الآلي في أجهزة المتصفح المفتوحة
+function sendNotice(){
+    let msg = document.getElementById('noticeInput').value.trim();
+    if(!msg) return showToast('اكتب نص الإشعار للبث', 'var(--warning)');
+    db.ref('notice').set(msg).then(() => {
+        document.getElementById('noticeInput').value = '';
+        showToast('تم نشر وتعميم الإشعار الإداري بنجاح بمكبر الصوت', 'var(--success)');
+    });
+}
+
+// نظام الشات والاتصال المباشر
+function sendMessage(){
+    let text = document.getElementById('chatInput').value.trim();
+    if(!text) return;
+
+    db.ref('chat').push({
+        user: currentUser,
+        text: text,
+        time: new Date().toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'})
+    });
+    document.getElementById('chatInput').value = '';
+}
+
+function loadChat(){
+    db.ref('chat').on('value', snap => {
+        let data = snap.val() || {};
+        let html = '';
+
+        for(let key in data){
+            let msg = data[key];
+            let cls = msg.user === 'محمد' ? 'ownerMsg' : 'clientMsg';
+
+            html += `
+            <div class="msg ${cls}">
+                <b><i class="fa-solid fa-user-tie"></i> ${msg.user}</b>
+                ${msg.text}
+                <div style="font-size:10px; margin-top:6px; text-align:left; opacity:0.6;">${msg.time}</div>
+            </div>
+            `;
+        }
+
+        let chatBox = document.getElementById('chatBox');
+        chatBox.innerHTML = html;
+        chatBox.scrollTop = chatBox.scrollHeight;
+    });
+}
+
+// طباعة ملصق الباركود الاحترافي الفردي للمنتجات (حبشتكانة الـ Label Printing)
+function printBarcode(product, color, size, barcode) {
+    let printArea = document.getElementById('printArea');
+    printArea.innerHTML = `
+        <div style="text-align:center; font-family:'Cairo'; padding:20px; border:2px dashed #000; display:inline-block;">
+            <h2 style="margin:0; font-size:24px;">M_TAL3A FACTORY</h2>
+            <p style="margin:5px 0; font-size:16px;"><b>الصنف:</b> ${product} | <b>اللون:</b> ${color}</p>
+            <p style="margin:5px 0; font-size:16px;"><b>المقاس:</b> ${size}</p>
+            <div style="font-size:28px; font-weight:900; letter-spacing:4px; margin:10px 0; padding:10px; background:#000; color:#fff;">*${barcode}*</div>
+            <p style="margin:0; font-size:12px;">صُنع في مصر بدقة عالية — علامة طلة التجارية</p>
+        </div>
+    `;
+    window.print();
+}
+
+// تصدير نسخة صلبة للمصنع (JSON Export)
+function exportBackup(){
+    db.ref().once('value', snap => {
+        let data = snap.val() || {};
+        let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
+        let dlAnchor = document.createElement('a');
+        dlAnchor.setAttribute("href", dataStr);
+        dlAnchor.setAttribute("download", "TAL3A_ERP_SYSTEM_BACKUP_" + Date.now() + ".json");
+        document.body.appendChild(dlAnchor);
+        dlAnchor.click();
+        dlAnchor.remove();
+        showToast('تم تحميل ملف النسخة الاحتياطية بنجاح بنسق JSON', 'var(--success)');
+    });
+}
+
+// لفتح واجهة رفع الملف الاحتياطي للـ Database
+function triggerImport() { document.getElementById('importFile').click(); }
+function importBackup(input) {
+    let file = input.files[0];
+    if(!file) return;
+    let reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            let json = JSON.parse(e.target.result);
+            if(confirm('هل أنت متأكد من كتابة هذه البيانات فوق قاعدة البيانات الحالية بالكامل؟')){
+                db.ref().set(json).then(() => {
+                    showToast('تم استعادة واستيراد قاعدة البيانات بنجاح تام!', 'var(--success)');
+                    loadAll();
+                });
+            }
+        } catch(err) {
+            alert('خطأ: الملف المرفوع غير صالح أو تالف!');
+        }
+    };
+    reader.readAsText(file);
+}
+
+// الاستماع المباشر للإشعارات الصوتية عبر الـ Text-to-Speech للذكاء الاصطناعي
+db.ref('notice').on('value', snap => {
+    let txt = snap.val();
+    if(txt){
+        document.getElementById('globalNoticeBar').innerText = txt;
+        // قراءة الصوت بشكل آلي بلكنة مصرية مفهومة للمصنع
+        let speech = new SpeechSynthesisUtterance(txt);
+        speech.lang = 'ar-EG';
+        speech.rate = 0.9;
+        window.speechSynthesis.speak(speech);
+    }
+});
+
+// مراقبة الاتصال الفوري بالشبكة لتنبيه العمال
+window.addEventListener('offline', () => { document.getElementById('onlineStatus').innerHTML = '🔴 انقطع الاتصال بالإنترنت حالياً'; showToast('تم فصل الشبكة!', 'var(--danger)'); });
+window.addEventListener('online', () => { document.getElementById('onlineStatus').innerHTML = '🟢 متصل بالسيرفر المباشر'; showToast('عادت الشبكة بنجاح', 'var(--success)'); });
 </script>
+</body>
+</html>
