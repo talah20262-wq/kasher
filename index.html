@@ -1,1128 +1,104 @@
-# TAL3A FACTORY ERP SYSTEM — النسخة الشاملة الكاملة
-
-```html
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TAL3A FACTORY ERP SYSTEM</title>
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
-
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap');
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Cairo',sans-serif;
-}
-
-body{
-background:#050816;
-color:white;
-overflow-x:hidden;
-min-height:100vh;
-}
-
-body::before{
-content:'';
-position:fixed;
-inset:0;
-background:url('https://images.unsplash.com/photo-1445205170230-053b83016050?q=80&w=1600&auto=format&fit=crop') center/cover;
-filter:brightness(.15) blur(2px);
-z-index:-2;
-}
-
-body::after{
-content:'';
-position:fixed;
-inset:0;
-background:linear-gradient(135deg,#000000c8,#111827ee,#020617f2);
-z-index:-1;
-}
-
-:root{
---main:#7c3aed;
---main2:#06b6d4;
---danger:#ef4444;
---success:#10b981;
---warning:#f59e0b;
---glass:rgba(255,255,255,.08);
---border:rgba(255,255,255,.12);
-}
-
-.screen{
-display:none;
-padding:20px;
-}
-
-.active{
-display:block;
-animation:fade .4s ease;
-}
-
-@keyframes fade{
-from{opacity:0;transform:translateY(20px)}
-to{opacity:1;transform:none}
-}
-
-.loginBox{
-width:95%;
-max-width:430px;
-margin:70px auto;
-background:rgba(0,0,0,.55);
-border:1px solid var(--border);
-backdrop-filter:blur(20px);
-padding:35px;
-border-radius:30px;
-box-shadow:0 0 60px #000;
-}
-
-.logoTitle{
-font-size:35px;
-font-weight:900;
-text-align:center;
-margin-bottom:25px;
-background:linear-gradient(90deg,#fff,var(--main2));
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-}
-
-.input{
-width:100%;
-padding:16px;
-margin-top:14px;
-border:none;
-outline:none;
-background:rgba(255,255,255,.08);
-color:white;
-border-radius:18px;
-font-size:16px;
-}
-
-.btn{
-width:100%;
-padding:16px;
-border:none;
-border-radius:18px;
-margin-top:18px;
-font-size:16px;
-font-weight:800;
-cursor:pointer;
-transition:.3s;
-background:linear-gradient(45deg,var(--main),var(--main2));
-color:white;
-}
-
-.btn:hover{
-transform:scale(1.03);
-box-shadow:0 0 30px #7c3aed;
-}
-
-.layout{
-display:flex;
-gap:20px;
-}
-
-.sidebar{
-width:280px;
-background:rgba(255,255,255,.05);
-backdrop-filter:blur(20px);
-border:1px solid var(--border);
-min-height:95vh;
-border-radius:30px;
-padding:20px;
-position:sticky;
-top:10px;
-}
-
-.sidebar h2{
-text-align:center;
-margin-bottom:25px;
-font-size:24px;
-}
-
-.sideBtn{
-width:100%;
-padding:15px;
-margin-top:10px;
-border:none;
-border-radius:16px;
-background:rgba(255,255,255,.08);
-color:white;
-font-weight:700;
-cursor:pointer;
-transition:.3s;
-}
-
-.sideBtn:hover{
-background:linear-gradient(45deg,var(--main),var(--main2));
-transform:translateX(-5px);
-}
-
-.content{
-flex:1;
-}
-
-.topBar{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:20px;
-background:rgba(255,255,255,.06);
-padding:20px;
-border-radius:25px;
-backdrop-filter:blur(20px);
-}
-
-.cards{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-gap:20px;
-margin-bottom:20px;
-}
-
-.card{
-background:rgba(255,255,255,.06);
-border:1px solid var(--border);
-padding:25px;
-border-radius:25px;
-backdrop-filter:blur(18px);
-position:relative;
-overflow:hidden;
-}
-
-.card::before{
-content:'';
-position:absolute;
-width:140px;
-height:140px;
-background:linear-gradient(45deg,var(--main),transparent);
-border-radius:50%;
-left:-60px;
-top:-60px;
-opacity:.5;
-}
-
-.card h3{
-font-size:15px;
-margin-bottom:10px;
-color:#cbd5e1;
-}
-
-.card p{
-font-size:30px;
-font-weight:900;
-}
-
-.panel{
-background:rgba(255,255,255,.05);
-border:1px solid var(--border);
-padding:20px;
-border-radius:25px;
-margin-bottom:20px;
-backdrop-filter:blur(18px);
-}
-
-.panelTitle{
-font-size:20px;
-margin-bottom:20px;
-font-weight:800;
-}
-
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-gap:15px;
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-margin-top:20px;
-overflow:hidden;
-border-radius:20px;
-}
-
-th{
-background:#111827;
-padding:14px;
-}
-
-td{
-padding:14px;
-background:rgba(255,255,255,.04);
-text-align:center;
-}
-
-tr:nth-child(even) td{
-background:rgba(255,255,255,.07);
-}
-
-.chatBox{
-height:400px;
-overflow:auto;
-padding:15px;
-background:#020617;
-border-radius:20px;
-margin-bottom:10px;
-}
-
-.msg{
-padding:12px;
-border-radius:16px;
-margin-top:10px;
-max-width:75%;
-}
-
-.ownerMsg{
-background:#2563eb;
-margin-right:auto;
-}
-
-.clientMsg{
-background:#374151;
-margin-left:auto;
-}
-
-.noticeBar{
-background:linear-gradient(90deg,#f59e0b,#ef4444);
-padding:14px;
-font-weight:800;
-border-radius:16px;
-animation:move 8s linear infinite;
-margin-bottom:20px;
-}
-
-@keyframes move{
-0%{transform:translateX(0)}
-50%{transform:translateX(-5px)}
-100%{transform:translateX(0)}
-}
-
-.stockLow{
-background:#7f1d1d !important;
-color:#fff;
-}
-
-.printBtn{
-background:var(--success);
-padding:10px 15px;
-border:none;
-border-radius:12px;
-color:white;
-cursor:pointer;
-}
-
-.killBtn{
-background:linear-gradient(45deg,#dc2626,#7f1d1d);
-}
-
-.freezeBtn{
-background:linear-gradient(45deg,#f59e0b,#b45309);
-}
-
-@media(max-width:900px){
-.layout{
-flex-direction:column;
-}
-.sidebar{
-width:100%;
-min-height:auto;
-}
-}
-
-</style>
-</head>
-<body>
-
-<div id="loginScreen" class="screen active">
-<div class="loginBox">
-<div class="logoTitle">TAL3A FACTORY ERP</div>
-<input id="loginUser" class="input" placeholder="اسم المستخدم">
-<input id="loginPass" type="password" class="input" placeholder="كلمة السر">
-<button class="btn" onclick="login()">دخول السيستم</button>
-</div>
-</div>
-
-<div id="ownerScreen" class="screen">
-<div class="layout">
-
-<div class="sidebar">
-<h2>لوحة محمد</h2>
-<button class="sideBtn" onclick="showPage('dashboardPage')">الرئيسية</button>
-<button class="sideBtn" onclick="showPage('accountsPage')">الحسابات</button>
-<button class="sideBtn" onclick="showPage('inventoryPage')">المخزن</button>
-<button class="sideBtn" onclick="showPage('tailorPage')">الترزية</button>
-<button class="sideBtn" onclick="showPage('chatPage')">الشات</button>
-<button class="sideBtn" onclick="showPage('notificationsPage')">الإشعارات</button>
-<button class="sideBtn" onclick="showPage('settingsPage')">الإعدادات</button>
-<button class="sideBtn killBtn" onclick="killSystem()">Kill Switch</button>
-<button class="sideBtn" onclick="logout()">تسجيل خروج</button>
-</div>
-
-<div class="content">
-
-<div class="noticeBar" id="globalNoticeBar">مرحبا بك داخل نظام مصنع طلة السينمائي</div>
-
-<div id="dashboardPage" class="page">
-<div class="topBar">
-<h1>لوحة التحكم السينمائية</h1>
-<div id="onlineStatus">🟢 متصل</div>
-</div>
-
-<div class="cards">
-<div class="card">
-<h3>إجمالي الأرباح</h3>
-<p id="profitCard">0</p>
-</div>
-<div class="card">
-<h3>إجمالي العملاء</h3>
-<p id="clientsCard">0</p>
-</div>
-<div class="card">
-<h3>إجمالي المنتجات</h3>
-<p id="productsCard">0</p>
-</div>
-<div class="card">
-<h3>إجمالي المديونيات</h3>
-<p id="debtsCard">0</p>
-</div>
-</div>
-</div>
-
-<div id="accountsPage" class="page" style="display:none">
-<div class="panel">
-<div class="panelTitle">إضافة / تعديل حساب</div>
-<div class="grid">
-<input id="accUser" class="input" placeholder="اسم العميل">
-<input id="accPass" class="input" placeholder="كلمة السر">
-<select id="accRole" class="input">
-<option value="client">عميل</option>
-<option value="supervisor">مشرف</option>
-<option value="subowner">مالك فرعي</option>
-</select>
-<input id="accQty" class="input" type="number" placeholder="القطع">
-<input id="accPaid" class="input" type="number" placeholder="المدفوع">
-<input id="accExpense" class="input" type="number" placeholder="المصروف">
-</div>
-<button class="btn" onclick="saveAccount()">حفظ الحساب</button>
-</div>
-
-<div class="panel">
-<div class="panelTitle">جدول العملاء</div>
-<table>
-<thead>
-<tr>
-<th>الاسم</th>
-<th>النوع</th>
-<th>القطع</th>
-<th>المدفوع</th>
-<th>المصروف</th>
-<th>الحالة</th>
-<th>إدارة</th>
-</tr>
-</thead>
-<tbody id="accountsTable"></tbody>
-</table>
-</div>
-</div>
-
-<div id="inventoryPage" class="page" style="display:none">
-<div class="panel">
-<div class="panelTitle">مخزن العميل / الشيت الكامل</div>
-<div class="grid">
-<input id="stockClient" class="input" placeholder="اسم العميل">
-<input id="productName" class="input" placeholder="اسم المنتج">
-<input id="productColor" class="input" placeholder="اللون">
-<input id="productSize" class="input" placeholder="المقاس">
-<input id="productQty" type="number" class="input" placeholder="الكمية">
-<input id="productPrice" type="number" class="input" placeholder="السعر">
-</div>
-<button class="btn" onclick="addStock()">حفظ المنتج بالمخزن</button>
-</div>
-
-<div class="panel">
-<table>
-<thead>
-<tr>
-<th>العميل</th>
-<th>المنتج</th>
-<th>اللون</th>
-<th>المقاس</th>
-<th>الكمية</th>
-<th>السعر</th>
-<th>باركود</th>
-<th>طباعة</th>
-</tr>
-</thead>
-<tbody id="stockTable"></tbody>
-</table>
-</div>
-</div>
-
-<div id="tailorPage" class="page" style="display:none">
-<div class="panel">
-<div class="panelTitle">شيت الترزية والإنتاج</div>
-<div class="grid">
-<input id="tailorName" class="input" placeholder="اسم الترزي">
-<input id="tailorModel" class="input" placeholder="الموديل">
-<input id="tailorDone" class="input" placeholder="عدد القطع">
-<input id="tailorPrice" class="input" placeholder="سعر القطعة">
-</div>
-<button class="btn">تسجيل الإنتاج</button>
-</div>
-</div>
-
-<div id="chatPage" class="page" style="display:none">
-<div class="panel">
-<div class="panelTitle">شات المصنع</div>
-<div class="chatBox" id="chatBox"></div>
-<input id="chatInput" class="input" placeholder="اكتب رسالة">
-<button class="btn" onclick="sendMessage()">إرسال</button>
-</div>
-</div>
-
-<div id="notificationsPage" class="page" style="display:none">
-<div class="panel">
-<div class="panelTitle">الإشعارات العامة</div>
-<input id="noticeInput" class="input" placeholder="الإشعار">
-<button class="btn" onclick="sendNotice()">إرسال إشعار صوتي</button>
-</div>
-</div>
-
-<div id="settingsPage" class="page" style="display:none">
-<div class="panel">
-<div class="panelTitle">إعدادات السيستم</div>
-<input type="file" class="input" id="logoUpload">
-<button class="btn">رفع لوجو الموقع</button>
-<button class="btn freezeBtn">نسخة احتياطية JSON</button>
-</div>
-</div>
-
-</div>
-</div>
-</div>
+<!-- ====================== OWNER + CLIENT FINAL FUNCTIONS ====================== -->
 
 <script>
-const firebaseConfig={
-databaseURL:'https://mama-c6e6b-default-rtdb.firebaseio.com/'
-}
 
-firebase.initializeApp(firebaseConfig)
-const db=firebase.database()
+/* ======================
+   GLOBAL VARIABLES
+====================== */
 
-let currentUser=null
-let currentRole=null
+let currentClientData = null
+let currentUser = null
+let currentRole = null
+
+/* ======================
+   LOGIN SYSTEM
+====================== */
 
 function login(){
-let u=document.getElementById('loginUser').value
-let p=document.getElementById('loginPass').value
 
-if(u==='محمد' && p==='111221'){
-currentUser='محمد'
-currentRole='owner'
-document.getElementById('loginScreen').classList.remove('active')
-document.getElementById('ownerScreen').classList.add('active')
-loadAll()
+let u = document.getElementById('loginUser').value.trim()
+let p = document.getElementById('loginPass').value.trim()
+
+if(!u || !p){
+
+alert('اكتب البيانات كاملة')
 return
+
 }
 
-firebase.database().ref('accounts/'+u).once('value').then(s=>{
+/* OWNER LOGIN */
+
+if(u === 'محمد' && p === '111221'){
+
+currentUser='محمد'
+currentRole='owner'
+
+document.getElementById('loginScreen')
+.classList.remove('active')
+
+document.getElementById('ownerScreen')
+.classList.add('active')
+
+loadAll()
+
+saveAccessLog()
+
+return
+
+}
+
+/* CLIENT LOGIN */
+
+firebase.database()
+.ref('accounts/'+u)
+.once('value')
+.then(s=>{
+
 let data=s.val()
 
 if(!data){
+
 alert('الحساب غير موجود')
 return
+
 }
 
-if(data.password!==p){
-alert('كلمة السر خطأ')
+if(data.password !== p){
+
+alert('كلمة السر غير صحيحة')
 return
+
 }
 
-if(data.freeze===true){
-alert('الحساب مجمد')
+if(data.freeze === true){
+
+alert('الحساب مجمد من الإدارة')
 return
+
 }
 
 currentUser=u
 currentRole=data.role
-alert('تم الدخول بنجاح')
-})
-}
 
-function logout(){
-location.reload()
-}
+openClient()
 
-function showPage(id){
-document.querySelectorAll('.page').forEach(p=>p.style.display='none')
-document.getElementById(id).style.display='block'
-}
+saveAccessLog()
 
-function saveAccount(){
-let data={
-password:document.getElementById('accPass').value,
-role:document.getElementById('accRole').value,
-qty:document.getElementById('accQty').value,
-paid:document.getElementById('accPaid').value,
-expense:document.getElementById('accExpense').value,
-freeze:false
-}
-
-let user=document.getElementById('accUser').value
-
-firebase.database().ref('accounts/'+user).set(data)
-alert('تم حفظ الحساب')
-}
-
-function addStock(){
-let id=Date.now()
-
-let data={
-client:document.getElementById('stockClient').value,
-product:document.getElementById('productName').value,
-color:document.getElementById('productColor').value,
-size:document.getElementById('productSize').value,
-qty:document.getElementById('productQty').value,
-price:document.getElementById('productPrice').value,
-barcode:'TL'+Math.floor(Math.random()*999999)
-}
-
-firebase.database().ref('stock/'+id).set(data)
-alert('تم إضافة المنتج')
-}
-
-function loadAll(){
-loadAccounts()
-loadStock()
-loadChat()
-}
-
-function loadAccounts(){
-firebase.database().ref('accounts').on('value',snap=>{
-let data=snap.val()||{}
-let html=''
-let total=0
-let clients=0
-
-for(let key in data){
-clients++
-total+=Number(data[key].paid||0)-Number(data[key].expense||0)
-
-html+=`
-<tr>
-<td>${key}</td>
-<td>${data[key].role}</td>
-<td>${data[key].qty||0}</td>
-<td>${data[key].paid||0} ج.م</td>
-<td>${data[key].expense||0} ج.م</td>
-<td>${data[key].freeze?'🔴 مجمد':'🟢 نشط'}</td>
-<td>
-<button onclick="freezeAcc('${key}')">تجميد</button>
-<button onclick="deleteAcc('${key}')">حذف</button>
-</td>
-</tr>
-`
-}
-
-document.getElementById('accountsTable').innerHTML=html
-
-document.getElementById('profitCard').innerText=total+' ج.م'
-document.getElementById('clientsCard').innerText=clients
-})
-}
-
-function loadStock(){
-firebase.database().ref('stock').on('value',snap=>{
-let data=snap.val()||{}
-let html=''
-let count=0
-
-for(let key in data){
-count++
-let low=Number(data[key].qty)<5?'stockLow':''
-
-html+=`
-<tr class="${low}">
-<td>${data[key].client}</td>
-<td>${data[key].product}</td>
-<td>${data[key].color}</td>
-<td>${data[key].size}</td>
-<td>${data[key].qty}</td>
-<td>${data[key].price} ج.م</td>
-<td>${data[key].barcode}</td>
-<td><button class="printBtn" onclick="window.print()">طباعة</button></td>
-</tr>
-`
-}
-
-document.getElementById('stockTable').innerHTML=html
-
-document.getElementById('productsCard').innerText=count
-})
-}
-
-function deleteAcc(user){
-if(confirm('حذف الحساب؟')){
-firebase.database().ref('accounts/'+user).remove()
-}
-}
-
-function freezeAcc(user){
-firebase.database().ref('accounts/'+user+'/freeze').set(true)
-}
-
-function killSystem(){
-if(confirm('إيقاف كل الحسابات؟')){
-firebase.database().ref('systemOff').set(true)
-alert('تم تنفيذ Kill Switch')
-}
-}
-
-function sendNotice(){
-let msg=document.getElementById('noticeInput').value
-firebase.database().ref('notice').set(msg)
-
-let speech=new SpeechSynthesisUtterance(msg)
-speech.lang='ar-EG'
-speechSynthesis.speak(speech)
-
-alert('تم إرسال الإشعار')
-}
-
-function sendMessage(){
-let text=document.getElementById('chatInput').value
-if(!text)return
-
-firebase.database().ref('chat').push({
-user:currentUser,
-text,
-time:new Date().toLocaleTimeString('ar-EG')
 })
 
-document.getElementById('chatInput').value=''
 }
 
-function loadChat(){
-firebase.database().ref('chat').on('value',snap=>{
-let data=snap.val()||{}
-let html=''
-
-for(let key in data){
-let msg=data[key]
-let cls=msg.user==='محمد'?'ownerMsg':'clientMsg'
-
-html+=`
-<div class="msg ${cls}">
-<b>${msg.user}</b><br>
-${msg.text}
-<div style="font-size:12px;margin-top:6px">${msg.time}</div>
-</div>
-`
-}
-
-document.getElementById('chatBox').innerHTML=html
-
-document.getElementById('chatBox').scrollTop=document.getElementById('chatBox').scrollHeight
-})
-}
-
-firebase.database().ref('notice').on('value',snap=>{
-let txt=snap.val()
-if(txt){
-document.getElementById('globalNoticeBar').innerText=txt
-
-if(Notification.permission==='granted'){
-new Notification('إشعار جديد',{body:txt})
-}
-
-let speech=new SpeechSynthesisUtterance(txt)
-speech.lang='ar-EG'
-speechSynthesis.speak(speech)
-}
-})
-
-if(Notification.permission!=='granted'){
-Notification.requestPermission()
-}
-
-window.addEventListener('offline',()=>{
-document.getElementById('onlineStatus').innerHTML='🔴 غير متصل'
-})
-
-window.addEventListener('online',()=>{
-document.getElementById('onlineStatus').innerHTML='🟢 متصل'
-})
-
-firebase.database().ref('systemOff').on('value',snap=>{
-if(snap.val()===true && currentUser!=='محمد'){
-alert('تم إيقاف النظام بواسطة المالك')
-location.reload()
-}
-})
-<!-- ====================== CLIENT SYSTEM ====================== -->
-
-<div id="clientScreen" class="screen">
-
-<div class="layout">
-
-<div class="sidebar">
-
-<h2 id="clientWelcome">لوحة العميل</h2>
-
-<button class="sideBtn" onclick="showClientPage('clientDashboard')">
-<i class="fa fa-chart-line"></i> الرئيسية
-</button>
-
-<button class="sideBtn" onclick="showClientPage('clientStore')">
-<i class="fa fa-box"></i> المخزن
-</button>
-
-<button class="sideBtn" onclick="showClientPage('clientInvoices')">
-<i class="fa fa-file-invoice"></i> الفواتير
-</button>
-
-<button class="sideBtn" onclick="showClientPage('clientChat')">
-<i class="fa fa-comments"></i> الشات
-</button>
-
-<button class="sideBtn" onclick="showClientPage('clientNotifications')">
-<i class="fa fa-bell"></i> الإشعارات
-</button>
-
-<button class="sideBtn" onclick="logout()">
-<i class="fa fa-sign-out"></i> خروج
-</button>
-
-</div>
-
-<div class="content">
-
-<div class="noticeBar" id="clientNoticeBar">
-مرحبا بك داخل نظام طلة السينمائي
-</div>
-
-<!-- DASHBOARD -->
-
-<div id="clientDashboard" class="clientPage">
-
-<div class="cards">
-
-<div class="card">
-<h3>عدد القطع</h3>
-<p id="clientQtyCard">0</p>
-</div>
-
-<div class="card">
-<h3>إجمالي المدفوع</h3>
-<p id="clientPaidCard">0 ج.م</p>
-</div>
-
-<div class="card">
-<h3>إجمالي المصروف</h3>
-<p id="clientExpenseCard">0 ج.م</p>
-</div>
-
-<div class="card">
-<h3>الحالة</h3>
-<p id="clientStateCard">نشط</p>
-</div>
-
-</div>
-
-<div class="panel">
-
-<div class="panelTitle">
-ملف العميل
-</div>
-
-<div class="grid">
-
-<div class="card">
-<h3>اسم الحساب</h3>
-<p id="profileName">---</p>
-</div>
-
-<div class="card">
-<h3>نوع الحساب</h3>
-<p id="profileRole">---</p>
-</div>
-
-<div class="card">
-<h3>آخر دخول</h3>
-<p id="profileLastLogin">---</p>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- STORE -->
-
-<div id="clientStore" class="clientPage" style="display:none">
-
-<div class="panel">
-
-<div class="panelTitle">
-مخزن العميل الكامل
-</div>
-
-<input class="input" id="storeSearch"
-placeholder="بحث سريع"
-onkeyup="filterStore()">
-
-<table>
-
-<thead>
-
-<tr>
-<th>المنتج</th>
-<th>اللون</th>
-<th>المقاس</th>
-<th>الكمية</th>
-<th>السعر</th>
-<th>باركود</th>
-</tr>
-
-</thead>
-
-<tbody id="clientStoreTable"></tbody>
-
-</table>
-
-</div>
-
-</div>
-
-<!-- INVOICES -->
-
-<div id="clientInvoices" class="clientPage" style="display:none">
-
-<div class="panel">
-
-<div class="panelTitle">
-كشف الحساب والطباعة
-</div>
-
-<div id="invoiceArea">
-
-<div style="display:flex;align-items:center;gap:20px;margin-bottom:20px">
-
-<img id="invoiceLogo"
-src="https://cdn-icons-png.flaticon.com/512/3081/3081559.png"
-style="width:90px;height:90px;border-radius:20px">
-
-<div>
-<h1>TAL3A FACTORY</h1>
-<p>كشف حساب العميل</p>
-</div>
-
-</div>
-
-<hr style="margin:20px 0;border-color:#ffffff22">
-
-<div class="grid">
-
-<div class="card">
-<h3>اسم العميل</h3>
-<p id="invoiceClientName"></p>
-</div>
-
-<div class="card">
-<h3>عدد القطع</h3>
-<p id="invoiceQty"></p>
-</div>
-
-<div class="card">
-<h3>إجمالي المدفوع</h3>
-<p id="invoicePaid"></p>
-</div>
-
-<div class="card">
-<h3>المصروف</h3>
-<p id="invoiceExpense"></p>
-</div>
-
-</div>
-
-<div style="margin-top:25px">
-
-<h3 style="margin-bottom:10px">
-شروط الاستلام
-</h3>
-
-<p style="line-height:2;color:#ddd">
-يتم مراجعة جميع القطع قبل الاستلام النهائي
-ولا يتحمل المصنع أي مسؤولية بعد مغادرة الطلب.
-</p>
-
-</div>
-
-</div>
-
-<button class="btn"
-onclick="printInvoice()">
-طباعة كشف الحساب
-</button>
-
-</div>
-
-</div>
-
-<!-- CHAT -->
-
-<div id="clientChat" class="clientPage" style="display:none">
-
-<div class="panel">
-
-<div class="panelTitle">
-التواصل مع المالك
-</div>
-
-<div class="chatBox" id="clientChatBox"></div>
-
-<div id="typingBox"
-style="font-size:13px;color:#94a3b8;margin-bottom:10px">
-</div>
-
-<input id="clientChatInput"
-class="input"
-placeholder="اكتب رسالتك"
-oninput="typingNow()">
-
-<button class="btn"
-onclick="sendClientMessage()">
-إرسال الرسالة
-</button>
-
-</div>
-
-</div>
-
-<!-- NOTIFICATIONS -->
-
-<div id="clientNotifications"
-class="clientPage"
-style="display:none">
-
-<div class="panel">
-
-<div class="panelTitle">
-إشعارات المصنع
-</div>
-
-<div id="notificationsList"></div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- ====================== EXTRA STYLES ====================== -->
-
-<style>
-
-.clientPage{
-animation:fade .4s ease;
-}
-
-#invoiceArea{
-background:#0f172a;
-padding:25px;
-border-radius:25px;
-border:1px solid #ffffff15;
-}
-
-.notificationItem{
-background:#111827;
-padding:15px;
-border-radius:18px;
-margin-top:12px;
-border-left:5px solid var(--main2);
-}
-
-.floatingBtn{
-
-position:fixed;
-bottom:20px;
-left:20px;
-width:60px;
-height:60px;
-border-radius:50%;
-background:linear-gradient(45deg,var(--main),var(--main2));
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:25px;
-cursor:pointer;
-z-index:999;
-box-shadow:0 0 25px #000;
-
-}
-
-.hamburger{
-display:none;
-}
-
-@media(max-width:768px){
-
-.sidebar{
-position:fixed;
-right:-100%;
-top:0;
-height:100%;
-z-index:9999;
-transition:.4s;
-}
-
-.sidebar.activeSidebar{
-right:0;
-}
-
-.hamburger{
-display:flex;
-position:fixed;
-top:15px;
-right:15px;
-width:55px;
-height:55px;
-background:linear-gradient(45deg,var(--main),var(--main2));
-border-radius:18px;
-align-items:center;
-justify-content:center;
-z-index:10000;
-font-size:22px;
-}
-
-}
-
-</style>
-
-<!-- ====================== EXTRA FUNCTIONS ====================== -->
-
-<script>
-
-let currentClientData=null
+/* ======================
+   CLIENT OPEN
+====================== */
 
 function openClient(){
 
-document.getElementById('loginScreen').classList.remove('active')
-document.getElementById('clientScreen').classList.add('active')
+document.getElementById('loginScreen')
+.classList.remove('active')
+
+document.getElementById('clientScreen')
+.classList.add('active')
 
 loadClientData()
 loadClientStore()
@@ -1131,67 +107,490 @@ loadClientNotifications()
 
 }
 
+/* ======================
+   ACCESS LOGS
+====================== */
+
+function saveAccessLog(){
+
+firebase.database()
+.ref('logs')
+.push({
+
+user:currentUser,
+role:currentRole,
+time:new Date().toLocaleString('ar-EG'),
+device:navigator.userAgent
+
+})
+
+}
+
+/* ======================
+   LOGOUT
+====================== */
+
+function logout(){
+
+location.reload()
+
+}
+
+/* ======================
+   OWNER PAGE NAVIGATION
+====================== */
+
+function showPage(id){
+
+document.querySelectorAll('.page')
+.forEach(p=>p.style.display='none')
+
+document.getElementById(id)
+.style.display='block'
+
+}
+
+/* ======================
+   CLIENT PAGE NAVIGATION
+====================== */
+
+function showClientPage(id){
+
+document.querySelectorAll('.clientPage')
+.forEach(p=>p.style.display='none')
+
+document.getElementById(id)
+.style.display='block'
+
+}
+
+/* ======================
+   SAVE ACCOUNT
+====================== */
+
+function saveAccount(){
+
+let user = document.getElementById('accUser').value.trim()
+
+if(!user){
+
+alert('اكتب اسم العميل')
+return
+
+}
+
+let data={
+
+password:document.getElementById('accPass').value,
+
+role:document.getElementById('accRole').value,
+
+qty:Number(document.getElementById('accQty').value||0),
+
+paid:Number(document.getElementById('accPaid').value||0),
+
+expense:Number(document.getElementById('accExpense').value||0),
+
+freeze:false,
+
+createdAt:new Date().toLocaleString('ar-EG')
+
+}
+
+firebase.database()
+.ref('accounts/'+user)
+.set(data)
+
+alert('تم حفظ الحساب')
+
+}
+
+/* ======================
+   LOAD ACCOUNTS
+====================== */
+
+function loadAccounts(){
+
+firebase.database()
+.ref('accounts')
+.on('value',snap=>{
+
+let data=snap.val()||{}
+
+let html=''
+
+let totalProfit=0
+let totalDebts=0
+let clients=0
+
+for(let key in data){
+
+let d=data[key]
+
+clients++
+
+let paid=Number(d.paid||0)
+let expense=Number(d.expense||0)
+
+totalProfit += paid-expense
+totalDebts += expense
+
+html += `
+
+<tr>
+
+<td>${key}</td>
+
+<td>${d.role}</td>
+
+<td>${d.qty||0}</td>
+
+<td>${paid.toLocaleString()} ج.م</td>
+
+<td>${expense.toLocaleString()} ج.م</td>
+
+<td>
+
+${d.freeze
+?'🔴 مجمد'
+:'🟢 نشط'}
+
+</td>
+
+<td>
+
+<button class="printBtn"
+onclick="resetBalances('${key}')">
+
+تصفير
+
+</button>
+
+<button class="freezeBtn"
+onclick="toggleFreeze('${key}',${d.freeze})">
+
+${d.freeze?'فك':'تجميد'}
+
+</button>
+
+<button class="killBtn"
+onclick="deleteAcc('${key}')">
+
+حذف
+
+</button>
+
+</td>
+
+</tr>
+
+`
+
+}
+
+document.getElementById('accountsTable')
+.innerHTML=html
+
+document.getElementById('profitCard')
+.innerText=totalProfit.toLocaleString()+' ج.م'
+
+document.getElementById('clientsCard')
+.innerText=clients
+
+document.getElementById('debtsCard')
+.innerText=totalDebts.toLocaleString()+' ج.م'
+
+})
+
+}
+
+/* ======================
+   DELETE ACCOUNT
+====================== */
+
+function deleteAcc(user){
+
+if(confirm('حذف الحساب نهائياً؟')){
+
+firebase.database()
+.ref('accounts/'+user)
+.remove()
+
+}
+
+}
+
+/* ======================
+   FREEZE / UNFREEZE
+====================== */
+
+function toggleFreeze(user,state){
+
+firebase.database()
+.ref('accounts/'+user+'/freeze')
+.set(!state)
+
+}
+
+/* ======================
+   RESET BALANCES
+====================== */
+
+function resetBalances(user){
+
+firebase.database()
+.ref('accounts/'+user)
+.once('value')
+.then(s=>{
+
+let d=s.val()
+
+firebase.database()
+.ref('archive/'+user+'/'+Date.now())
+.set(d)
+
+firebase.database()
+.ref('accounts/'+user+'/paid')
+.set(0)
+
+firebase.database()
+.ref('accounts/'+user+'/expense')
+.set(0)
+
+alert('تم تصفير الحساب')
+
+})
+
+}
+
+/* ======================
+   ADD STOCK
+====================== */
+
+function addStock(){
+
+let client =
+document.getElementById('stockClient').value
+
+let product =
+document.getElementById('productName').value
+
+let color =
+document.getElementById('productColor').value
+
+let size =
+document.getElementById('productSize').value
+
+let qty =
+Number(document.getElementById('productQty').value)
+
+let price =
+Number(document.getElementById('productPrice').value)
+
+let barcode='TL'+Math.floor(Math.random()*999999)
+
+firebase.database()
+.ref('stock')
+.once('value')
+.then(s=>{
+
+let data=s.val()||{}
+
+let foundKey=null
+
+for(let key in data){
+
+let item=data[key]
+
+if(
+item.client===client &&
+item.product===product &&
+item.color===color &&
+item.size===size
+){
+
+foundKey=key
+
+}
+
+}
+
+if(foundKey){
+
+firebase.database()
+.ref('stock/'+foundKey+'/qty')
+.set(
+Number(data[foundKey].qty)+qty
+)
+
+}else{
+
+firebase.database()
+.ref('stock/'+Date.now())
+.set({
+
+client,
+product,
+color,
+size,
+qty,
+price,
+barcode
+
+})
+
+}
+
+alert('تم حفظ المنتج')
+
+})
+
+}
+
+/* ======================
+   LOAD STOCK
+====================== */
+
+function loadStock(){
+
+firebase.database()
+.ref('stock')
+.on('value',snap=>{
+
+let data=snap.val()||{}
+
+let html=''
+let count=0
+
+for(let key in data){
+
+count++
+
+let s=data[key]
+
+let low =
+Number(s.qty)<5
+?'stockLow'
+:''
+
+html += `
+
+<tr class="${low}">
+
+<td>${s.client}</td>
+
+<td>${s.product}</td>
+
+<td>${s.color}</td>
+
+<td>${s.size}</td>
+
+<td>${s.qty}</td>
+
+<td>${s.price} ج.م</td>
+
+<td>${s.barcode}</td>
+
+<td>
+
+<button class="printBtn"
+onclick="window.print()">
+
+طباعة
+
+</button>
+
+</td>
+
+</tr>
+
+`
+
+}
+
+document.getElementById('stockTable')
+.innerHTML=html
+
+document.getElementById('productsCard')
+.innerText=count
+
+})
+
+}
+
+/* ======================
+   CLIENT DATA
+====================== */
+
 function loadClientData(){
 
-firebase.database().ref('accounts/'+currentUser)
+firebase.database()
+.ref('accounts/'+currentUser)
 .on('value',snap=>{
 
 let d=snap.val()
 
 if(!d)return
 
-currentClientData=d
-
-document.getElementById('clientWelcome').innerHTML=
-'👋 '+currentUser
-
-document.getElementById('clientQtyCard').innerText=
-d.qty||0
-
-document.getElementById('clientPaidCard').innerText=
-(d.paid||0)+' ج.م'
-
-document.getElementById('clientExpenseCard').innerText=
-(d.expense||0)+' ج.م'
-
-document.getElementById('clientStateCard').innerText=
-d.freeze?'مجمد':'نشط'
-
-document.getElementById('profileName').innerText=
-currentUser
-
-document.getElementById('profileRole').innerText=
-d.role
-
-document.getElementById('profileLastLogin').innerText=
-new Date().toLocaleString('ar-EG')
-
-document.getElementById('invoiceClientName').innerText=
-currentUser
-
-document.getElementById('invoiceQty').innerText=
-d.qty||0
-
-document.getElementById('invoicePaid').innerText=
-(d.paid||0)+' ج.م'
-
-document.getElementById('invoiceExpense').innerText=
-(d.expense||0)+' ج.م'
-
 if(d.freeze===true){
 
 alert('تم تجميد الحساب')
+
 location.reload()
 
 }
+
+document.getElementById('clientWelcome')
+.innerHTML='👋 '+currentUser
+
+document.getElementById('clientQtyCard')
+.innerText=d.qty||0
+
+document.getElementById('clientPaidCard')
+.innerText=
+(d.paid||0)+' ج.م'
+
+document.getElementById('clientExpenseCard')
+.innerText=
+(d.expense||0)+' ج.م'
+
+document.getElementById('clientStateCard')
+.innerText=
+d.freeze?'مجمد':'نشط'
+
+document.getElementById('profileName')
+.innerText=currentUser
+
+document.getElementById('profileRole')
+.innerText=d.role
+
+document.getElementById('profileLastLogin')
+.innerText=new Date().toLocaleString('ar-EG')
+
+document.getElementById('invoiceClientName')
+.innerText=currentUser
+
+document.getElementById('invoiceQty')
+.innerText=d.qty||0
+
+document.getElementById('invoicePaid')
+.innerText=(d.paid||0)+' ج.م'
+
+document.getElementById('invoiceExpense')
+.innerText=(d.expense||0)+' ج.م'
 
 })
 
 }
 
+/* ======================
+   CLIENT STORE
+====================== */
+
 function loadClientStore(){
 
-firebase.database().ref('stock')
+firebase.database()
+.ref('stock')
 .on('value',snap=>{
 
 let data=snap.val()||{}
@@ -1204,7 +603,7 @@ let s=data[key]
 
 if(s.client!==currentUser)continue
 
-html+=`
+html += `
 
 <tr>
 
@@ -1221,7 +620,8 @@ html+=`
 
 }
 
-document.getElementById('clientStoreTable').innerHTML=html
+document.getElementById('clientStoreTable')
+.innerHTML=html
 
 })
 
@@ -1229,7 +629,8 @@ document.getElementById('clientStoreTable').innerHTML=html
 
 function filterStore(){
 
-let val=document.getElementById('storeSearch')
+let val=
+document.getElementById('storeSearch')
 .value.toLowerCase()
 
 document.querySelectorAll('#clientStoreTable tr')
@@ -1243,27 +644,45 @@ row.innerText.toLowerCase().includes(val)
 
 }
 
-function showClientPage(id){
+/* ======================
+   CHAT SYSTEM
+====================== */
 
-document.querySelectorAll('.clientPage')
-.forEach(p=>p.style.display='none')
+function sendMessage(){
 
-document.getElementById(id).style.display='block'
+let txt=
+document.getElementById('chatInput').value
+
+if(!txt)return
+
+firebase.database()
+.ref('chat')
+.push({
+
+user:currentUser,
+text:txt,
+time:new Date().toLocaleTimeString('ar-EG')
+
+})
+
+document.getElementById('chatInput').value=''
 
 }
 
 function sendClientMessage(){
 
-let txt=document.getElementById('clientChatInput').value
+let txt=
+document.getElementById('clientChatInput').value
 
 if(!txt)return
 
-firebase.database().ref('chat').push({
+firebase.database()
+.ref('chat')
+.push({
 
 user:currentUser,
 text:txt,
-time:new Date().toLocaleTimeString('ar-EG'),
-type:'client'
+time:new Date().toLocaleTimeString('ar-EG')
 
 })
 
@@ -1271,9 +690,63 @@ document.getElementById('clientChatInput').value=''
 
 }
 
+function loadChat(){
+
+firebase.database()
+.ref('chat')
+.on('value',snap=>{
+
+let data=snap.val()||{}
+
+let html=''
+
+for(let key in data){
+
+let m=data[key]
+
+let cls=
+m.user==='محمد'
+?'ownerMsg'
+:'clientMsg'
+
+html += `
+
+<div class="msg ${cls}">
+
+<b>${m.user}</b>
+
+<br>
+
+${m.text}
+
+<div style="font-size:12px;margin-top:6px">
+
+${m.time}
+
+</div>
+
+</div>
+
+`
+
+}
+
+document.getElementById('chatBox')
+.innerHTML=html
+
+document.getElementById('chatBox')
+.scrollTop=
+document.getElementById('chatBox')
+.scrollHeight
+
+})
+
+}
+
 function loadClientChat(){
 
-firebase.database().ref('chat')
+firebase.database()
+.ref('chat')
 .on('value',snap=>{
 
 let data=snap.val()||{}
@@ -1294,7 +767,7 @@ m.user==='محمد'
 ?'ownerMsg'
 :'clientMsg'
 
-html+=`
+html += `
 
 <div class="msg ${cls}">
 
@@ -1304,7 +777,7 @@ html+=`
 
 ${m.text}
 
-<div style="font-size:12px;margin-top:5px">
+<div style="font-size:12px;margin-top:6px">
 
 ${m.time}
 
@@ -1316,14 +789,21 @@ ${m.time}
 
 }
 
-document.getElementById('clientChatBox').innerHTML=html
+document.getElementById('clientChatBox')
+.innerHTML=html
 
-document.getElementById('clientChatBox').scrollTop=
-document.getElementById('clientChatBox').scrollHeight
+document.getElementById('clientChatBox')
+.scrollTop=
+document.getElementById('clientChatBox')
+.scrollHeight
 
 })
 
 }
+
+/* ======================
+   TYPING SYSTEM
+====================== */
 
 function typingNow(){
 
@@ -1341,30 +821,81 @@ firebase.database()
 
 }
 
-firebase.database().ref('typing')
+firebase.database()
+.ref('typing')
 .on('value',snap=>{
 
-let d=snap.val()||{}
+let data=snap.val()||{}
 
 let txt=''
 
-for(let k in d){
+for(let key in data){
 
-if(d[k]===true){
+if(data[key]===true){
 
-txt=k+' يكتب الآن...'
-
-}
+txt=key+' يكتب الآن...'
 
 }
 
-document.getElementById('typingBox').innerText=txt
+}
+
+let box=document.getElementById('typingBox')
+
+if(box){
+
+box.innerText=txt
+
+}
 
 })
 
+/* ======================
+   NOTIFICATIONS
+====================== */
+
+function saveNotification(text){
+
+firebase.database()
+.ref('notifications')
+.push({
+
+text:text,
+time:new Date().toLocaleString('ar-EG')
+
+})
+
+}
+
+function sendNotice(){
+
+let msg=
+document.getElementById('noticeInput').value
+
+if(!msg)return
+
+firebase.database()
+.ref('notice')
+.set(msg)
+
+saveNotification(msg)
+
+playNotificationSound()
+
+let speech=
+new SpeechSynthesisUtterance(msg)
+
+speech.lang='ar-EG'
+
+speechSynthesis.speak(speech)
+
+alert('تم إرسال الإشعار')
+
+}
+
 function loadClientNotifications(){
 
-firebase.database().ref('notifications')
+firebase.database()
+.ref('notifications')
 .on('value',snap=>{
 
 let data=snap.val()||{}
@@ -1373,17 +904,19 @@ let html=''
 
 for(let key in data){
 
-html+=`
+let n=data[key]
+
+html += `
 
 <div class="notificationItem">
 
 <i class="fa fa-bell"></i>
 
-${data[key].text}
+${n.text}
 
 <div style="font-size:12px;margin-top:8px;color:#94a3b8">
 
-${data[key].time}
+${n.time}
 
 </div>
 
@@ -1393,15 +926,87 @@ ${data[key].time}
 
 }
 
-document.getElementById('notificationsList').innerHTML=html
+document.getElementById('notificationsList')
+.innerHTML=html
 
 })
 
 }
 
+firebase.database()
+.ref('notice')
+.on('value',snap=>{
+
+let txt=snap.val()
+
+if(!txt)return
+
+let ownerBar=
+document.getElementById('globalNoticeBar')
+
+if(ownerBar){
+
+ownerBar.innerText=txt
+
+}
+
+let clientBar=
+document.getElementById('clientNoticeBar')
+
+if(clientBar){
+
+clientBar.innerText=txt
+
+}
+
+})
+
+function playNotificationSound(){
+
+let audio=new Audio(
+'https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a73467.mp3'
+)
+
+audio.play()
+
+}
+
+firebase.database()
+.ref('notifications')
+.on('child_added',snap=>{
+
+let n=snap.val()
+
+if(Notification.permission==='granted'){
+
+new Notification('إشعار جديد',{
+
+body:n.text
+
+})
+
+}
+
+playNotificationSound()
+
+let speech=
+new SpeechSynthesisUtterance(n.text)
+
+speech.lang='ar-EG'
+
+speechSynthesis.speak(speech)
+
+})
+
+/* ======================
+   PRINT INVOICE
+====================== */
+
 function printInvoice(){
 
-let area=document.getElementById('invoiceArea').innerHTML
+let area=
+document.getElementById('invoiceArea')
+.innerHTML
 
 let win=window.open()
 
@@ -1446,135 +1051,18 @@ win.print()
 
 }
 
-function playNotificationSound(){
-
-let audio=new Audio(
-'https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a73467.mp3'
-)
-
-audio.play()
-
-}
-
-firebase.database().ref('notifications')
-.on('child_added',snap=>{
-
-let n=snap.val()
-
-if(Notification.permission==='granted'){
-
-new Notification('إشعار جديد',{
-body:n.text
-})
-
-}
-
-playNotificationSound()
-
-let speech=new SpeechSynthesisUtterance(n.text)
-
-speech.lang='ar-EG'
-
-speechSynthesis.speak(speech)
-
-})
-
-function saveNotification(text){
-
-firebase.database().ref('notifications').push({
-
-text:text,
-time:new Date().toLocaleString('ar-EG')
-
-})
-
-}
-
-function sendNotice(){
-
-let msg=document.getElementById('noticeInput').value
-
-if(!msg)return
-
-firebase.database().ref('notice').set(msg)
-
-saveNotification(msg)
-
-let speech=new SpeechSynthesisUtterance(msg)
-
-speech.lang='ar-EG'
-
-speechSynthesis.speak(speech)
-
-alert('تم إرسال الإشعار')
-
-}
-
-function login(){
-
-let u=document.getElementById('loginUser').value
-let p=document.getElementById('loginPass').value
-
-if(u==='محمد' && p==='111221'){
-
-currentUser='محمد'
-currentRole='owner'
-
-document.getElementById('loginScreen')
-.classList.remove('active')
-
-document.getElementById('ownerScreen')
-.classList.add('active')
-
-loadAll()
-
-return
-
-}
-
-firebase.database().ref('accounts/'+u)
-.once('value')
-.then(s=>{
-
-let data=s.val()
-
-if(!data){
-
-alert('الحساب غير موجود')
-return
-
-}
-
-if(data.password!==p){
-
-alert('كلمة السر خطأ')
-return
-
-}
-
-if(data.freeze===true){
-
-alert('الحساب مجمد')
-return
-
-}
-
-currentUser=u
-currentRole=data.role
-
-openClient()
-
-})
-
-}
+/* ======================
+   BACKUP JSON
+====================== */
 
 function backupJSON(){
 
-firebase.database().ref('/')
+firebase.database()
+.ref('/')
 .once('value')
 .then(snap=>{
 
-let dataStr=
+let dataStr =
 "data:text/json;charset=utf-8," +
 encodeURIComponent(
 JSON.stringify(snap.val())
@@ -1592,59 +1080,89 @@ a.click()
 
 }
 
-function unfreezeAcc(user){
+/* ======================
+   KILL SWITCH
+====================== */
+
+function killSystem(){
+
+if(confirm('قطع الاتصال عن جميع الحسابات؟')){
 
 firebase.database()
-.ref('accounts/'+user+'/freeze')
-.set(false)
+.ref('systemOff')
+.set(true)
+
+alert('تم تنفيذ Kill Switch')
 
 }
 
-function resetBalances(user){
+}
 
 firebase.database()
-.ref('accounts/'+user)
-.once('value')
-.then(s=>{
+.ref('systemOff')
+.on('value',snap=>{
 
-let d=s.val()
+if(
+snap.val()===true &&
+currentUser!=='محمد'
+){
 
-firebase.database()
-.ref('archive/'+user+'/'+Date.now())
-.set(d)
+alert('تم إيقاف النظام بواسطة الإدارة')
 
-firebase.database()
-.ref('accounts/'+user+'/paid')
-.set(0)
+location.reload()
 
-firebase.database()
-.ref('accounts/'+user+'/expense')
-.set(0)
+}
 
 })
 
+/* ======================
+   LOAD ALL OWNER
+====================== */
+
+function loadAll(){
+
+loadAccounts()
+loadStock()
+loadChat()
+
+}
+
+/* ======================
+   NETWORK STATUS
+====================== */
+
+window.addEventListener('offline',()=>{
+
+let x=document.getElementById('onlineStatus')
+
+if(x){
+
+x.innerHTML='🔴 غير متصل'
+
+}
+
+})
+
+window.addEventListener('online',()=>{
+
+let x=document.getElementById('onlineStatus')
+
+if(x){
+
+x.innerHTML='🟢 متصل'
+
+}
+
+})
+
+/* ======================
+   NOTIFICATION PERMISSION
+====================== */
+
+if(Notification.permission!=='granted'){
+
+Notification.requestPermission()
+
 }
 
 </script>
-
-<!-- ====================== FLOAT BUTTONS ====================== -->
-
-<div class="floatingBtn"
-onclick="window.scrollTo({top:0,behavior:'smooth'})">
-
-<i class="fa fa-arrow-up"></i>
-
-</div>
-
-<div class="hamburger"
-onclick="document.querySelector('.sidebar').classList.toggle('activeSidebar')">
-
-<i class="fa fa-bars"></i>
-
-</div>
-
-<!-- ====================== END ERP ====================== -->
-</script>
-</body>
-</html>
-```
