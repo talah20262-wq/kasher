@@ -1,7 +1,13 @@
 <!--
-🔥 TAL3A CINEMA ERP ULTRA
-سيستم مصنع + كشير + مخزن + شات + إشعارات صوتية
-HTML FULL ONE FILE
+████████╗ █████╗ ██╗     ██████╗  █████╗ 
+╚══██╔══╝██╔══██╗██║     ╚════██╗██╔══██╗
+   ██║   ███████║██║      █████╔╝███████║
+   ██║   ██╔══██║██║     ██╔═══╝ ██╔══██║
+   ██║   ██║  ██║███████╗███████╗██║  ██║
+   ╚═╝   ╚═╝  ╚═╝╚══════╝╚══════╝╚═╝  ╚═╝
+
+🔥 TAL3A FACTORY ULTRA CINEMA ERP 🔥
+سيستم مصنع + مخزن + كشير + شات + جرد + إشعارات صوتية
 -->
 
 <!DOCTYPE html>
@@ -12,7 +18,7 @@ HTML FULL ONE FILE
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>🔥 TAL3A FACTORY ERP ULTRA</title>
+<title>TAL3A ULTRA ERP</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
 
@@ -38,19 +44,7 @@ color:white;
 
 /* الخلفية السينمائية */
 
-video.bgVideo{
-
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-object-fit:cover;
-z-index:-2;
-
-}
-
-.overlay{
+.bg{
 
 position:fixed;
 top:0;
@@ -59,18 +53,35 @@ width:100%;
 height:100%;
 
 background:
-linear-gradient(
-135deg,
-rgba(0,0,0,.8),
-rgba(15,23,42,.9),
-rgba(0,0,0,.8)
-);
+linear-gradient(rgba(0,0,0,.75),rgba(0,0,0,.85)),
+url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=2070');
 
-z-index:-1;
+background-size:cover;
+background-position:center;
+
+animation:bgMove 20s infinite alternate;
+
+z-index:-2;
 
 }
 
-/* الشاشات */
+@keyframes bgMove{
+
+0%{
+
+transform:scale(1);
+
+}
+
+100%{
+
+transform:scale(1.1);
+
+}
+
+}
+
+/* شاشة */
 
 .screen{
 
@@ -89,45 +100,49 @@ animation:fade .5s;
 @keyframes fade{
 
 from{
+
 opacity:0;
-transform:translateY(30px);
+transform:translateY(25px);
+
 }
 
 to{
+
 opacity:1;
 transform:translateY(0);
+
 }
 
 }
 
 /* LOGIN */
 
-.loginBox{
+.login{
 
 max-width:500px;
-margin:70px auto;
+margin:80px auto;
 
 background:
-rgba(15,23,42,.88);
+rgba(15,23,42,.9);
 
 padding:40px;
 
 border-radius:35px;
 
-backdrop-filter:blur(20px);
+backdrop-filter:blur(25px);
 
 border:
 1px solid rgba(255,255,255,.1);
 
 box-shadow:
-0 0 60px rgba(37,99,235,.3);
+0 0 80px rgba(37,99,235,.35);
 
 }
 
 .logo{
 
 text-align:center;
-font-size:55px;
+font-size:60px;
 font-weight:900;
 
 margin-bottom:25px;
@@ -170,22 +185,24 @@ box-shadow:
 
 }
 
+/* BUTTON */
+
 .btn{
 
-padding:15px 25px;
+padding:16px 25px;
 border:none;
 border-radius:18px;
 
 cursor:pointer;
-
 font-weight:900;
+
 transition:.3s;
 
 }
 
 .btn:hover{
 
-transform:translateY(-3px);
+transform:translateY(-4px);
 
 }
 
@@ -239,8 +256,8 @@ margin:auto;
 display:flex;
 justify-content:space-between;
 align-items:center;
-margin-bottom:25px;
 gap:15px;
+margin-bottom:25px;
 flex-wrap:wrap;
 
 }
@@ -259,19 +276,19 @@ margin-bottom:25px;
 .card{
 
 background:
-rgba(15,23,42,.85);
+rgba(15,23,42,.88);
 
 padding:25px;
 
 border-radius:30px;
 
 border:
-1px solid rgba(255,255,255,.05);
+1px solid rgba(255,255,255,.06);
 
-backdrop-filter:blur(20px);
+backdrop-filter:blur(15px);
 
 box-shadow:
-0 0 30px rgba(0,0,0,.3);
+0 0 40px rgba(0,0,0,.3);
 
 position:relative;
 overflow:hidden;
@@ -289,7 +306,7 @@ height:250px;
 
 background:
 radial-gradient(
-rgba(37,99,235,.35),
+rgba(37,99,235,.25),
 transparent
 );
 
@@ -300,7 +317,7 @@ left:-120px;
 
 .big{
 
-font-size:45px;
+font-size:50px;
 font-weight:900;
 
 }
@@ -352,16 +369,16 @@ background:#111827;
 
 }
 
-/* CHAT */
+/* الشات */
 
-.chatBox{
+.chat{
 
 height:350px;
 overflow:auto;
 
-padding:15px;
-
 background:#020617;
+
+padding:15px;
 
 border-radius:20px;
 
@@ -371,11 +388,13 @@ margin-bottom:15px;
 
 .msg{
 
-padding:12px;
-border-radius:15px;
-margin-bottom:12px;
+padding:15px;
+border-radius:18px;
+margin-bottom:15px;
 
 max-width:75%;
+
+font-size:14px;
 
 }
 
@@ -386,65 +405,47 @@ margin-right:auto;
 
 }
 
-.other{
+.owner{
 
 background:#1e293b;
 margin-left:auto;
 
 }
 
-/* NOTIFICATION */
+/* إشعار */
 
 .notice{
 
-padding:18px;
+padding:20px;
 border-radius:20px;
 
 background:
-linear-gradient(
-90deg,
-#1e293b,
-#0f172a
-);
-
-margin-bottom:20px;
+linear-gradient(90deg,#1e293b,#0f172a);
 
 border-right:5px solid #38bdf8;
 
+margin-bottom:20px;
+
+font-size:18px;
 font-weight:bold;
 
-animation:pulse 1s infinite alternate;
+animation:glow 1s infinite alternate;
 
 }
 
-@keyframes pulse{
+@keyframes glow{
 
 from{
-transform:scale(1);
+
+box-shadow:0 0 15px rgba(37,99,235,.3);
+
 }
 
 to{
-transform:scale(1.02);
-}
+
+box-shadow:0 0 35px rgba(37,99,235,.7);
 
 }
-
-/* TOAST */
-
-.toast{
-
-position:fixed;
-bottom:20px;
-left:20px;
-
-background:#020617;
-padding:18px 25px;
-
-border-radius:18px;
-
-display:none;
-
-z-index:999999;
 
 }
 
@@ -459,6 +460,26 @@ repeat(auto-fit,minmax(180px,1fr));
 gap:15px;
 
 margin-bottom:20px;
+
+}
+
+/* TOAST */
+
+.toast{
+
+position:fixed;
+bottom:20px;
+left:20px;
+
+background:#020617;
+
+padding:18px 25px;
+
+border-radius:18px;
+
+display:none;
+
+z-index:99999;
 
 }
 
@@ -515,28 +536,19 @@ display:table-cell !important;
 
 <body>
 
-<!-- الخلفية -->
-
-<video autoplay muted loop class="bgVideo">
-
-<source
-src="https://cdn.coverr.co/videos/coverr-manufacturing-factory-1560246451117?download=1080p"
-type="video/mp4">
-
-</video>
-
-<div class="overlay"></div>
+<div class="bg"></div>
 
 <div id="toast" class="toast"></div>
 
 <!-- LOGIN -->
 
-<div id="loginScreen" class="screen active">
+<div id="loginScreen"
+class="screen active">
 
-<div class="loginBox">
+<div class="login">
 
 <div class="logo">
-⚡ TAL3A ERP
+🔥 TAL3A ERP
 </div>
 
 <input class="input"
@@ -544,8 +556,8 @@ id="user"
 placeholder="اسم المستخدم">
 
 <input class="input"
-id="pass"
 type="password"
+id="pass"
 placeholder="كلمة السر">
 
 <button class="btn blue"
@@ -573,12 +585,12 @@ class="screen">
 👑 لوحة المصنع الرئيسية
 </h1>
 
-<div style="display:flex;gap:10px;">
+<div style="display:flex;gap:10px;flex-wrap:wrap;">
 
 <button class="btn orange"
 onclick="sendNotice()">
 
-إرسال إشعار
+إرسال إشعار صوتي
 
 </button>
 
@@ -593,7 +605,7 @@ onclick="logout()">
 
 </div>
 
-<!-- الحبشتكنات -->
+<!-- حبشتكنات -->
 
 <div class="cards">
 
@@ -639,7 +651,7 @@ id="allMoney">
 <div class="card">
 
 <div class="muted">
-عدد الرسائل
+الرسائل
 </div>
 
 <div class="big"
@@ -656,7 +668,7 @@ id="allMessages">
 <div class="card">
 
 <h2>
-➕ إنشاء عميل / مشرف
+➕ إنشاء عميل
 </h2>
 
 <br>
@@ -699,7 +711,7 @@ onclick="saveUser()">
 <div class="card">
 
 <h2>
-📦 شيت المخزن
+📦 إدارة المخزن والجرد
 </h2>
 
 <br>
@@ -733,7 +745,42 @@ onclick="addStock()">
 
 </div>
 
-<!-- الرسائل -->
+<!-- جدول -->
+
+<div class="card">
+
+<h2>
+📋 كل العملاء
+</h2>
+
+<br>
+
+<div class="tableWrap">
+
+<table id="usersTable">
+
+<thead>
+
+<tr>
+
+<th>الاسم</th>
+<th>القطع</th>
+<th>المدفوع</th>
+<th>المصروف</th>
+
+</tr>
+
+</thead>
+
+<tbody></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<!-- الشات -->
 
 <div class="card">
 
@@ -744,14 +791,14 @@ onclick="addStock()">
 <br>
 
 <div id="ownerChat"
-class="chatBox"></div>
+class="chat"></div>
 
 <input class="input"
-id="ownerReply"
-placeholder="الرد على العميل">
+id="replyText"
+placeholder="اكتب الرد">
 
 <button class="btn green"
-onclick="replyClient()">
+onclick="reply()">
 
 إرسال الرد
 
@@ -830,12 +877,12 @@ id="clientExpense">
 
 </div>
 
-<!-- مخزن العميل -->
+<!-- المخزن -->
 
 <div class="card">
 
 <h2>
-📦 مخزن العميل
+📦 جرد المخزن
 </h2>
 
 <br>
@@ -874,7 +921,7 @@ onclick="printStock()">
 
 </div>
 
-<!-- شات -->
+<!-- الشات -->
 
 <div class="card">
 
@@ -885,7 +932,7 @@ onclick="printStock()">
 <br>
 
 <div id="clientChat"
-class="chatBox"></div>
+class="chat"></div>
 
 <input class="input"
 id="clientMessage"
@@ -945,8 +992,6 @@ onclick="sendMessage()">
 
 <script>
 
-/* FIREBASE */
-
 const firebaseConfig={
 
 databaseURL:
@@ -995,9 +1040,8 @@ currentUser="محمد";
 
 openScreen("ownerScreen");
 
-loadChats();
-
-toast("أهلاً محمد");
+loadUsers();
+loadOwnerChat();
 
 return;
 
@@ -1020,16 +1064,12 @@ document.getElementById("clientName")
 syncClient(d);
 
 loadStock();
-
 loadClientChat();
-
 listenNotice();
-
-toast("تم الدخول");
 
 }else{
 
-toast("بيانات خاطئة");
+toast("بيانات غلط");
 
 }
 
@@ -1037,7 +1077,7 @@ toast("بيانات خاطئة");
 
 }
 
-/* OPEN */
+/* SCREEN */
 
 function openScreen(id){
 
@@ -1061,7 +1101,7 @@ location.reload();
 
 }
 
-/* SAVE USER */
+/* SAVE */
 
 function saveUser(){
 
@@ -1086,6 +1126,48 @@ document.getElementById("newExpense").value
 });
 
 toast("تم الحفظ");
+
+}
+
+/* USERS */
+
+function loadUsers(){
+
+db.ref("users")
+.on("value",snap=>{
+
+const body=
+document.querySelector("#usersTable tbody");
+
+body.innerHTML="";
+
+let count=0;
+
+snap.forEach(data=>{
+
+count++;
+
+const d=data.val();
+
+body.innerHTML+=`
+
+<tr>
+
+<td>${data.key}</td>
+<td>${d.qty}</td>
+<td>${d.paid}</td>
+<td>${d.expense}</td>
+
+</tr>
+
+`;
+
+});
+
+document.getElementById("allUsers")
+.innerText=count;
+
+});
 
 }
 
@@ -1115,8 +1197,6 @@ toast("تم إضافة المنتج");
 
 }
 
-/* LOAD STOCK */
-
 function loadStock(){
 
 db.ref("stocks/"+currentUser)
@@ -1128,10 +1208,13 @@ document.querySelector("#stockTable tbody");
 body.innerHTML="";
 
 let total=0;
+let products=0;
 
 snap.forEach(data=>{
 
 const d=data.val();
+
+products++;
 
 total+=Number(d.total);
 
@@ -1149,6 +1232,12 @@ body.innerHTML+=`
 `;
 
 });
+
+document.getElementById("allProducts")
+.innerText=products;
+
+document.getElementById("allMoney")
+.innerText=total;
 
 body.innerHTML+=`
 
@@ -1194,11 +1283,9 @@ prompt("اكتب الإشعار");
 
 db.ref("notice").set(text);
 
-toast("تم الإرسال");
+toast("تم إرسال الإشعار");
 
 }
-
-/* LISTEN NOTICE */
 
 function listenNotice(){
 
@@ -1213,12 +1300,12 @@ document.getElementById("noticeBox")
 .innerHTML=`
 
 <div class="notice">
+
 🔔 ${t}
+
 </div>
 
 `;
-
-/* إشعار صوتي */
 
 const speech=
 new SpeechSynthesisUtterance(t);
@@ -1244,16 +1331,13 @@ db.ref("chat")
 .push({
 
 user:currentUser,
-msg:msg,
-type:"client"
+msg:msg
 
 });
 
 }
 
-/* LOAD CHAT OWNER */
-
-function loadChats(){
+function loadOwnerChat(){
 
 db.ref("chat")
 .on("value",snap=>{
@@ -1263,17 +1347,17 @@ document.getElementById("ownerChat");
 
 box.innerHTML="";
 
-let count=0;
+let c=0;
 
 snap.forEach(data=>{
 
-count++;
+c++;
 
 const d=data.val();
 
 box.innerHTML+=`
 
-<div class="msg other">
+<div class="msg owner">
 
 <b>
 ${d.user}
@@ -1290,31 +1374,11 @@ ${d.msg}
 });
 
 document.getElementById("allMessages")
-.innerText=count;
+.innerText=c;
 
 });
 
 }
-
-/* OWNER REPLY */
-
-function replyClient(){
-
-const msg=
-document.getElementById("ownerReply").value;
-
-db.ref("chat")
-.push({
-
-user:"محمد",
-msg:msg,
-type:"owner"
-
-});
-
-}
-
-/* CLIENT CHAT */
 
 function loadClientChat(){
 
@@ -1334,7 +1398,7 @@ if(d.user===currentUser || d.user==="محمد"){
 
 box.innerHTML+=`
 
-<div class="msg ${d.user==="محمد"?"other":"me"}">
+<div class="msg ${d.user==="محمد"?"owner":"me"}">
 
 <b>
 ${d.user}
@@ -1351,6 +1415,21 @@ ${d.msg}
 }
 
 });
+
+});
+
+}
+
+function reply(){
+
+const text=
+document.getElementById("replyText").value;
+
+db.ref("chat")
+.push({
+
+user:"محمد",
+msg:text
 
 });
 
@@ -1416,8 +1495,8 @@ new Date().toLocaleTimeString();
 document.addEventListener("mousemove",e=>{
 
 document.body.style.backgroundPosition=
-e.clientX/50+"px "+
-e.clientY/50+"px";
+e.clientX/40+"px "+
+e.clientY/40+"px";
 
 });
 
